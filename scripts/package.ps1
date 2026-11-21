@@ -1,4 +1,4 @@
-﻿# 配布フォルダーと ZIP を作る
+# 配布フォルダーと ZIP を作る
 #   powershell -ExecutionPolicy Bypass -File scripts/package.ps1
 #
 # 作るもの（dist/ 以下）
@@ -83,8 +83,10 @@ function New-Zip([string]$source, [string]$destination, [string]$prefix) {
   }
 }
 
+$versionedStoreZipPath = Join-Path $dist "Tempo-$($manifest.version)-chrome-edge.zip"
 New-Zip $folder $zipPath $folderName
 New-Zip $folder $storeZipPath ''
+Copy-Item -LiteralPath $storeZipPath -Destination $versionedStoreZipPath -Force
 
 # 5. 結果
 $count = (Get-ChildItem -LiteralPath $folder -Recurse -File).Count
@@ -92,3 +94,4 @@ Write-Host "Version $($manifest.version) / $count files"
 Write-Host "Folder : $folder"
 Write-Host "ZIP    : $zipPath"
 Write-Host "Store  : $storeZipPath"
+Write-Host "Versioned Store : $versionedStoreZipPath"

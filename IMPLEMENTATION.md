@@ -16,7 +16,9 @@
 | `_locales/<12言語>/messages.json` | 翻訳の原本。manifest の名前・説明もここから |
 | `scripts/build-i18n.cjs` | `_locales` → `i18n.js` の生成と整合チェック（`--check`） |
 | `scripts/generate-icons.ps1` | アイコン 16/32/48/128px の再生成 |
-| `scripts/package.ps1` | `dist/Tempo/`、`Tempo-Chrome-Edge.zip`、ストア用 `Tempo-webstore.zip` |
+| `scripts/package.ps1` | Windows 用: `dist/Tempo/`、`Tempo-Chrome-Edge.zip`、ストア用 `Tempo-webstore.zip` |
+| `scripts/pack-chromium.cjs` | クロスプラットフォーム用: Chrome / Edge 提出用 ZIP と配布フォルダーを生成 |
+| `scripts/pack-firefox.cjs` `scripts/firefox.config.cjs` | Firefox AMO 提出用フォルダー・ZIP を生成 |
 
 ## 保存データ
 
@@ -120,7 +122,8 @@ URL は `pendingUrl` を優先し、判定にだけ使います。ツールバ�
 - ホストは `position: fixed`、最大の `z-index`、`pointer-events: none`。中のパネルだけ `auto`。click / dblclick / pointer / mouse / touch / key 系のイベントはパネルで伝播を止めます。
 - open Shadow DOM なのでページのスクリプトからも要素に触れられます。操作は `event.isTrusted` のもの（利用者の操作）だけを受け付け、ページが共通の保存速度を書き換えられないようにしています。
 - 位置は動画の左上から右 10px・下 10px、画面端 8px に収まるよう補正。`requestAnimationFrame` とスクロール・リサイズ・`ResizeObserver`、表示中は 800ms ごとに追従します。
-- 表示条件: 有効・表示設定 ON・画面内・幅 185px 以上・高さ 88px 以上・不可視でない。条件を満たさなくても検出済みならポップアップの操作対象です。
+- 表示条件: 有効・表示設定 ON・画面内・幅 185px 以上・高さ 88px 以上・不可視でない・リアルタイム通信（`MediaStream`）やソース未設定／再生不可でない・`playbackRate` が固定／変更拒否されていない。サイズや画面外だけで非表示の動画は検出済みならポップアップの操作対象です。
+- リアルタイム双方向通信（Google Meet・Zoom・Teams・Discord 通話などの WebRTC / `MediaStream`）、ソース未設定の空 `video`、エラーで読込不能（`error && readyState === 0`）、0 秒メディア（`readyState >= 1 && duration === 0`）は制御対象外とし、パネル表示・自動速度適用・動画カウントを行いません。同一 `video` 要素でソースが通常動画と切り替わった場合は `loadstart` / `loadedmetadata` / `emptied` で動的に追従します。
 - コンテナーの全画面ではその要素の中へ移し（その要素が Shadow host なら Shadow root の中へ）、`video` 自体の全画面では隠します。
 - 状態（基本列・詳細・折りたたみ）は動画ごとにメモリーで保持し、隠れても維持します。折りたたむと復帰ボタン、戻すと折りたたみボタンへフォーカスを移します。
 - 復帰ボタンは 26×26px＋枠 1px＝外寸 28×28px、12px の線画（仕様の SVG そのまま）。通常は背景 24%・線 65%・影なし、ホバーと `:focus-visible` だけ強めます。
@@ -132,7 +135,7 @@ URL は `pendingUrl` を優先し、判定にだけ使います。ツールバ�
 - 後処理: メディアイベントの購読（`AbortController`）、`ResizeObserver`、パネルのホストを破棄します。別の文書へ移った動画（Document Picture-in-Picture など）も登録を外します。
 - 外した動画の基準速度と最終適用値は `WeakMap` に残し、付け直されて実速度がまだ拡張機能の値なら所有権を引き継ぎます。外れている間に OFF になっていれば、付け直した時に元の速度へ戻します。
 - 拡張機能の更新・無効化で文脈が失われたら（動画の登録・`loadedmetadata`・DOM 監視・定期処理・送信失敗の各入口で確認）、古い設定を当てずにパネル・監視・タイマーをすべて片付けます。
-- 事前レンダリングで開かれたページは、表示された時（`prerenderingchange`）に報告し直します。
+- 事前レンダリングで開かれたページは、表示された時（`prerenderingchange`）に報告し直します。bfcache から復元されたページ（`pageshow` の `persisted`）は凍結中に見逃した設定・言語を再読込して反映し直します。
 - 二重初期化はフレームごとのフラグで防ぎます。
 - **制約**: 既存の要素に後から `attachShadow()` だけを行ったケースは `MutationObserver` に現れないため、自動では検出しません。ポップアップの状態照会・速度指示のたびに全体を再走査するので、そこで検出します（テスト `F24 open Shadow DOM` で確認）。
 

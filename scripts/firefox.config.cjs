@@ -13,12 +13,6 @@ module.exports = {
   patches: [
     // イベントページには importScripts が無い (manifest の background.scripts で先に読み込む)
     { file: 'background.js', find: "importScripts('shared.js', 'i18n.js');", replace: "if (typeof importScripts === 'function') importScripts('shared.js', 'i18n.js');" },
-    // Firefox の isAllowedFileSchemeAccess() は常に false を返すので、 実際の file:// 権限で判定する
-    {
-      file: 'popup.js',
-      find: 'chrome.extension.isAllowedFileSchemeAccess()',
-      replace: "chrome.permissions.contains({ origins: ['file:///*'] })"
-    },
     // Firefox で拡張機能が動かないストア・アカウント画面
     {
       file: 'shared.js',
@@ -26,7 +20,7 @@ module.exports = {
       replace: [
         '/^https:\\/\\/microsoftedge\\.microsoft\\.com\\/addons/i,',
         '    /^https:\\/\\/(discovery\\.)?addons\\.mozilla\\.org\\//i,',
-        '    /^https:\\/\\/accounts\\.firefox\\.com\\//i,',
+        '    /^https:\\/\\/([a-z0-9-]+\\.)?accounts\\.firefox\\.com\\//i,',
         '    /^https:\\/\\/support\\.mozilla\\.org\\//i'
       ].join('\n')
     }

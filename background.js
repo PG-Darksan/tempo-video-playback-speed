@@ -20,6 +20,7 @@ const NOTIFY_DELAY_MS = 25;
 const RETRY_DELAY_MS = 150;
 const DELIVERY_GRACE_MS = 1200;
 const REFRESH_DELAY_MS = 250;
+const CLOCK_SKEW_MS = 200;
 const MAX_RATES = 500;
 const EXTENSION_ORIGIN = chrome.runtime.getURL('');
 
@@ -186,7 +187,7 @@ function mergeFrame(frames, frame) {
   const prev = frames.get(frame.frameId);
   if (!isNewer(prev, frame)) return { accepted: false, topChanged: false };
   const top = frames.get(0);
-  if (frame.frameId !== 0 && top && (!frame.documentId || !top.documentId) && frame.startedAt < top.startedAt) {
+  if (frame.frameId !== 0 && top && (!frame.documentId || !top.documentId) && frame.startedAt + CLOCK_SKEW_MS < top.startedAt) {
     return { accepted: false, topChanged: false };
   }
   if (frame.gone) {
@@ -341,10 +342,15 @@ function collect(tabId, type, extra) {
       finish();
     }, COLLECT_DEADLINE_MS);
 
-    const delivery = chrome.tabs.sendMessage(tabId, { type, requestId: pending.requestId, ...(extra || {}) }).then(
-      () => true,
-      () => false
-    );
+    let delivery;
+    try {
+      delivery = chrome.tabs.sendMessage(tabId, { type, requestId: pending.requestId, ...(extra || {}) }).then(
+        () => true,
+        () => false
+      );
+    } catch (_) {
+      delivery = Promise.resolve(false);
+    }
     delivery.then((ok) => {
       pending.delivered = ok;
       pending.check();
@@ -411,7 +417,7 @@ function delay(ms) {
 }
 
 async function getTabState(tabId) {
-  if (!Number.isInteger(tabId)) return { ok: false, error: 'no-tab' };
+  if (!Number.isInteger(tabId) || tabId < 0) return { ok: false, error: 'no-tab' };
   await settingsReady;
   let result = await collect(tabId, MSG.requestReport);
   if (!result.delivered && result.reports.size === 0) {
@@ -428,7 +434,7 @@ async function getTabState(tabId) {
 const tabSpeedSeq = new Map();
 
 async function setTabSpeed(tabId, speed) {
-  if (!Number.isInteger(tabId)) return { ok: false, error: 'no-tab' };
+  if (!Number.isInteger(tabId) || tabId < 0) return { ok: false, error: 'no-tab' };
   const target = S.normalizeSpeed(speed);
   if (target == null) return { ok: false, error: 'invalid-speed' };
   const seq = (tabSpeedSeq.get(tabId) || 0) + 1;
@@ -446,8 +452,9 @@ async function setTabSpeed(tabId, speed) {
   }
   let frames = first.reports;
   let applied = countApplied(frames, target);
+  const firstVideos = [...frames.values()].reduce((sum, f) => sum + f.videoCount, 0);
   let requeried = false;
-  if (delivered !== true || applied === 0) {
+  if (delivered !== true || frames.size === 0 || (firstVideos > 0 && applied === 0)) {
     // 応答だけが失われた成功を失敗と決めつけない。速度指示は再送しない。
     requeried = true;
     const second = await collect(tabId, MSG.requestReport);
@@ -471,6 +478,7 @@ async function setTabSpeed(tabId, speed) {
 
 /** 生存確認: キャッシュ中のフレームへ個別に問い合わせ、応答しないものを捨てる。 */
 async function refreshTab(tabId) {
+  if (!Number.isInteger(tabId) || tabId < 0) return;
   await settingsReady;
   const entry = tabCache.get(tabId);
   if (!entry || entry.frames.size === 0) {
@@ -479,27 +487,41 @@ async function refreshTab(tabId) {
     applyBadge(tabId, aggregate(result.reports));
     return;
   }
+  const checkStartedAt = Date.now();
   const checks = [...entry.frames.values()].map(async (prev) => {
     try {
       const res = await chrome.tabs.sendMessage(tabId, { type: MSG.getState }, { frameId: prev.frameId });
       if (res && res.ok && res.report) {
         const frame = frameFromReport(res.report, prev.frameId, null);
         if (frame && frame.startedAt === prev.startedAt) frame.documentId = prev.documentId;
-        return frame;
+        return { prev, frame };
       }
     } catch (_) {
       // 応答なし = そのフレームは消えた
     }
-    return { frameId: prev.frameId, gone: true };
+    return { prev, frame: { frameId: prev.frameId, gone: true } };
   });
   const results = await Promise.all(checks);
   const current = tabCache.get(tabId);
   if (!current) return;
-  for (const frame of results) {
+  for (const { prev, frame } of results) {
     if (!frame) continue;
-    // 個別の問い合わせへの直接の応答は、そのフレームの今の文書の状態
-    if (frame.gone) current.frames.delete(frame.frameId);
-    else current.frames.set(frame.frameId, frame);
+    const cur = current.frames.get(frame.frameId);
+    if (frame.gone) {
+      // 照会中に別の新しい文書や新しい報告が届いていれば消さない
+      if (cur && sameDocument(cur, prev) && cur.observedAt <= checkStartedAt) {
+        current.frames.delete(frame.frameId);
+      }
+    } else if (!cur) {
+      current.frames.set(frame.frameId, frame);
+    } else if (sameDocument(cur, frame)) {
+      if (frame.observedAt >= cur.observedAt) {
+        if (!frame.documentId && cur.documentId) frame.documentId = cur.documentId;
+        current.frames.set(frame.frameId, frame);
+      }
+    } else if (cur.observedAt <= checkStartedAt) {
+      current.frames.set(frame.frameId, frame);
+    }
   }
   applyBadge(tabId, aggregate(current.frames));
 }
@@ -623,7 +645,9 @@ function cleanupTab(tabId) {
 }
 
 chrome.tabs.onRemoved.addListener(cleanupTab);
-chrome.tabs.onReplaced.addListener((_addedTabId, removedTabId) => cleanupTab(removedTabId));
+if (chrome.tabs.onReplaced) {
+  chrome.tabs.onReplaced.addListener((_addedTabId, removedTabId) => cleanupTab(removedTabId));
+}
 
 chrome.tabs.onActivated.addListener(({ tabId }) => {
   refreshTab(tabId).catch(() => {});

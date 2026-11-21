@@ -79,7 +79,7 @@
       .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
       .replace(/[．，,]/g, '.')
       .trim()
-      .replace(/\s*[×xX倍]$/, '');
+      .replace(/\s*[×xXｘＸ倍]$/, '');
     if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(ascii)) return null;
     const value = Number(ascii);
     if (!Number.isFinite(value) || value < MIN_SPEED || value > MAX_SPEED) return null;

@@ -85,4 +85,13 @@ powershell -ExecutionPolicy Bypass -File scripts/package.ps1
 3. ダッシュボードの「パッケージ」で新しい `Tempo-webstore.zip` をアップロードし、審査に出す。
 
 ## Microsoft Edge アドオン
-<https://partner.microsoft.com/dashboard/microsoftedge> で開発者登録（無料）し、同じ `Tempo-webstore.zip` を新しい拡張機能として申請します。説明文・画像・プライバシーポリシー・権限の理由は上と同じものを使えます。
+<https://partner.microsoft.com/dashboard/microsoftedge> で開発者登録（無料）し、同じ `dist/Tempo-webstore.zip`（または同一内容の `dist/Tempo-<version>-chrome-edge.zip`）をアップロードします。説明文・画像・プライバシーポリシー・権限の理由は上と同じものを使えます。
+
+## Firefox Add-ons (AMO)
+1. プロジェクトのルートで次を実行します（Windows / macOS / Linux 共通）:
+   ```
+   node scripts/pack-chromium.cjs
+   node scripts/pack-firefox.cjs
+   ```
+2. `dist/Tempo-<version>-firefox.zip` を <https://addons.mozilla.org/developers/> からアップロードします。
+   - Manifest V3 イベントページ（`background.scripts`）、`browser_specific_settings.gecko.id`、`data_collection_permissions: { required: ["none"] }` が自動で付与されます。

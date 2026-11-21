@@ -30,12 +30,28 @@ function expand(zip) {
   return dir;
 }
 
+const ROOT_MANIFEST = JSON.parse(fs.readFileSync(path.join(EXT_DIR, 'manifest.json'), 'utf8'));
+
+function packChromium() {
+  if (process.platform === 'win32') {
+    powershell(['-File', path.join(EXT_DIR, 'scripts', 'package.ps1')]);
+  } else {
+    execFileSync(process.execPath, [path.join(EXT_DIR, 'scripts', 'pack-chromium.cjs')], { encoding: 'utf8' });
+  }
+}
+
+function packFirefox() {
+  execFileSync(process.execPath, [path.join(EXT_DIR, 'scripts', 'pack-firefox.cjs')], { encoding: 'utf8' });
+}
+
 test.describe.configure({ mode: 'serial' });
 
 test('A35 ZIPを新規展開して読み込め、12カタログ・アイコン・資料が揃い、開発依存を含まない', async ({ browserChannel, site }) => {
-  powershell(['-File', path.join(EXT_DIR, 'scripts', 'package.ps1')]);
+  packChromium();
+  packFirefox();
   const zip = path.join(DIST, 'Tempo-Chrome-Edge.zip');
   const storeZip = path.join(DIST, 'Tempo-webstore.zip');
+  const firefoxZip = path.join(DIST, `Tempo-${ROOT_MANIFEST.version}-firefox.zip`);
 
   const entries = zipEntries(zip);
   expect(entries.every((e) => e.startsWith('Tempo/'))).toBe(true);
@@ -53,12 +69,25 @@ test('A35 ZIPを新規展開して読み込め、12カタログ・アイコン�
   expect(storeEntries).toContain('manifest.json');
   expect(storeEntries.map((e) => `Tempo/${e}`).sort()).toEqual([...entries].sort());
 
+  // Firefox AMO 提出用 ZIP の検証
+  const ffEntries = zipEntries(firefoxZip);
+  expect(ffEntries).toContain('manifest.json');
+  expect(ffEntries.some((e) => e.includes('\\'))).toBe(false);
+  expect(ffEntries.filter((e) => FORBIDDEN.test(e))).toEqual([]);
+  expect(ffEntries.filter((e) => e.startsWith('_locales/') && e.endsWith('/messages.json'))).toHaveLength(12);
+  const ffManifest = JSON.parse(fs.readFileSync(path.join(DIST, 'Tempo-firefox', 'manifest.json'), 'utf8'));
+  expect(ffManifest.manifest_version).toBe(3);
+  expect(ffManifest.version).toBe(ROOT_MANIFEST.version);
+  expect(ffManifest.minimum_chrome_version).toBeUndefined();
+  expect(ffManifest.background).toEqual({ scripts: ['shared.js', 'i18n.js', 'background.js'] });
+  expect(ffManifest.browser_specific_settings.gecko.data_collection_permissions).toEqual({ required: ['none'] });
+
   // 新しく展開したフォルダーを読み込んで実際に動かす
   const dir = expand(zip);
   const extDir = path.join(dir, 'Tempo');
   const manifest = JSON.parse(fs.readFileSync(path.join(extDir, 'manifest.json'), 'utf8'));
   expect(manifest.manifest_version).toBe(3);
-  expect(manifest.version).toBe('1.5.3');
+  expect(manifest.version).toBe(ROOT_MANIFEST.version);
   expect(manifest.minimum_chrome_version).toBe('119');
   expect(manifest.permissions).toEqual(['storage', 'activeTab']);
   expect(manifest.host_permissions).toBeUndefined();

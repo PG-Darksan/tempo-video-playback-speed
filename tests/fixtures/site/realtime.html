@@ -1,0 +1,55 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>realtime</title><link rel="stylesheet" href="/site.css"></head>
+<body>
+<h1>Realtime MediaStream, empty tile, and dynamic source</h1>
+<canvas id="c" width="640" height="360" style="width:160px;height:90px"></canvas>
+<div class="row">
+  <video id="local" muted autoplay playsinline></video>
+  <video id="remote" muted autoplay playsinline></video>
+  <video id="emptyTile" muted autoplay playsinline></video>
+  <video id="dyn" muted playsinline></video>
+</div>
+<script src="/common.js"></script>
+<script>
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#2d6a75';
+  ctx.fillRect(0, 0, 640, 360);
+  const stream = canvas.captureStream(15);
+  document.getElementById('local').srcObject = stream;
+
+  window.__webrtcReady = (async () => {
+    const pc1 = new RTCPeerConnection();
+    const pc2 = new RTCPeerConnection();
+    pc1.onicecandidate = (e) => e.candidate && pc2.addIceCandidate(e.candidate);
+    pc2.onicecandidate = (e) => e.candidate && pc1.addIceCandidate(e.candidate);
+    pc2.ontrack = (e) => { document.getElementById('remote').srcObject = e.streams[0]; };
+    for (const track of stream.getTracks()) pc1.addTrack(track, stream);
+    const offer = await pc1.createOffer();
+    await pc1.setLocalDescription(offer);
+    await pc2.setRemoteDescription(offer);
+    const answer = await pc2.createAnswer();
+    await pc2.setLocalDescription(answer);
+    await pc1.setRemoteDescription(answer);
+  })();
+
+  window.setDynVod = (src = '/media/bright.webm') => {
+    const v = document.getElementById('dyn');
+    v.srcObject = null;
+    v.src = src;
+    v.load();
+  };
+  window.setDynStream = () => {
+    const v = document.getElementById('dyn');
+    v.removeAttribute('src');
+    v.srcObject = canvas.captureStream(10);
+    v.play().catch(() => {});
+  };
+  window.setDynEmpty = () => {
+    const v = document.getElementById('dyn');
+    v.srcObject = null;
+    v.removeAttribute('src');
+    v.load();
+  };
+</script>
+</body></html>

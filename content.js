@@ -20,7 +20,7 @@
   const { MSG, KEYS } = S;
   const HOST_TAG = 'tempo-speed-panel';
   const IS_TOP = window === window.top;
-  const STARTED_AT = Math.round(performance.timeOrigin || Date.now());
+  let startedAt = Math.round(performance.timeOrigin || Date.now());
   const REPORT_DELAY_MS = 40;
   const SAVE_DELAY_MS = 120;
   const SWEEP_DELAY_MS = 80;
@@ -166,6 +166,78 @@
     return !!node && node.nodeType === 1 && node.localName === 'video' && 'playbackRate' in node;
   }
 
+  /** video.srcObject がリアルタイムの MediaStream（WebRTC・カメラ・画面共有など）か。 */
+  function isMediaStream(srcObject) {
+    if (!srcObject || typeof srcObject !== 'object') return false;
+    if (typeof MediaStream === 'function' && srcObject instanceof MediaStream) return true;
+    if (Object.prototype.toString.call(srcObject) === '[object MediaStream]') return true;
+    return typeof srcObject.getTracks === 'function' && typeof srcObject.getVideoTracks === 'function';
+  }
+
+  /** 再生対象となるメディアソース（src / source / srcObject / 読込済みデータ）を持つか。 */
+  function hasMediaSource(video) {
+    if (video.srcObject != null) return true;
+    const srcAttr = video.getAttribute('src');
+    if (srcAttr && srcAttr.trim() !== '') return true;
+    for (const child of video.children) {
+      if (child.localName === 'source') {
+        const s = child.getAttribute('src');
+        if (s && s.trim() !== '') return true;
+      }
+    }
+    if (video.readyState > 0) return true;
+    // ソース削除後に networkState === 0 (NETWORK_EMPTY) のまま残る古い currentSrc を除外する
+    return !!video.currentSrc && video.networkState !== 0;
+  }
+
+  function videoSrcKey(video) {
+    if (video.currentSrc && video.networkState !== 0) return video.currentSrc;
+    const attr = video.getAttribute('src');
+    if (attr && attr.trim() !== '') return video.src || attr.trim();
+    for (const child of video.children) {
+      if (child.localName === 'source') {
+        const s = child.getAttribute('src');
+        if (s && s.trim() !== '') return child.src || s.trim();
+      }
+    }
+    return '';
+  }
+
+  /**
+   * リアルタイム双方向通信（MediaStream）・ソース未設定・再生不可の要素か。
+   * これらは再生速度制御の対象外とし、速度適用・パネル表示・動画カウントを行わない。
+   */
+  function isRealtimeOrEmpty(video) {
+    if (isMediaStream(video.srcObject)) return true;
+    const src = video.currentSrc || video.getAttribute('src') || '';
+    if (/^mediastream:/i.test(src.trim())) return true;
+    if (!hasMediaSource(video)) return true;
+    if (video.error && video.readyState === 0) return true;
+    if (video.readyState >= 1 && video.duration === 0) return true;
+    return false;
+  }
+
+  /** playbackRate プロパティ自体が読み取り専用に固定されているか（書き込みせず検査）。 */
+  function isPlaybackRateLocked(video) {
+    for (let obj = video; obj && obj !== Object.prototype; obj = Object.getPrototypeOf(obj)) {
+      const desc = Object.getOwnPropertyDescriptor(obj, 'playbackRate');
+      if (desc) {
+        if ('get' in desc || 'set' in desc) return typeof desc.set !== 'function';
+        return desc.writable === false;
+      }
+    }
+    return false;
+  }
+
+  function safeRate(video) {
+    try {
+      const rate = video.playbackRate;
+      return typeof rate === 'number' && Number.isFinite(rate) ? rate : 1;
+    } catch (_) {
+      return 1;
+    }
+  }
+
   function observeRoot(root) {
     if (mutationObservers.has(root)) return;
     const observer = new MutationObserver(onMutations);
@@ -210,11 +282,17 @@
       return;
     }
     let removed = false;
+    const sourceTargets = new Set();
     for (const record of records) {
       for (const node of record.addedNodes) {
         if (node.nodeType === 1 && node.localName !== HOST_TAG) scan(node);
       }
       if (record.removedNodes.length) removed = true;
+      if (entries.has(record.target)) sourceTargets.add(record.target);
+    }
+    for (const video of sourceTargets) {
+      const entry = entries.get(video);
+      if (entry) syncVideoSource(entry, { applyRemember: true });
     }
     if (removed) scheduleSweep();
   }
@@ -235,6 +313,62 @@
     }, SWEEP_DELAY_MS);
   }
 
+  function syncVideoSource(entry, { emptied = false, applyRemember = false } = {}) {
+    const video = entry.video;
+    const prevControllable = entry.controllable;
+    const nowControllable = !isRealtimeOrEmpty(video);
+    const curSrc = videoSrcKey(video);
+    const curSrcObject = video.srcObject || null;
+    const sourceChanged = emptied || curSrc !== entry.lastSrc || curSrcObject !== entry.lastSrcObject;
+
+    entry.controllable = nowControllable;
+    entry.lastSrc = curSrc;
+    entry.lastSrcObject = curSrcObject;
+
+    if (!nowControllable) {
+      // リアルタイム通信（MediaStream）や空ソースへ切り替わったら制御対象から外す
+      clearTimeout(entry.verifyTimer);
+      entry.verifyTimer = 0;
+      entry.target = null;
+      entry.rejected = false;
+      entry.rejectedRate = null;
+      entry.awaitingRateEvent = false;
+      if (isOwned(entry)) {
+        try {
+          video.playbackRate = entry.baselineRate;
+        } catch (_) {
+          // プレーヤーが復元を拒否した
+        }
+        entry.appliedRate = null;
+        entry.baselineRate = safeRate(video);
+      }
+      if (entry.panel) entry.panel.hide();
+      if (prevControllable || entry.panel) {
+        scheduleLayout();
+        scheduleReport();
+      }
+      return { changed: prevControllable !== nowControllable, sourceChanged };
+    }
+
+    if (!prevControllable || sourceChanged) {
+      if (!prevControllable) {
+        entry.baselineRate = safeRate(video);
+        entry.appliedRate = null;
+      }
+      entry.rejected = false;
+      entry.rejectedRate = null;
+      entry.target = null;
+      if (applyRemember && state.settings.enabled && state.settings.rememberSpeed && !isPlaybackRateLocked(video)) {
+        applySpeed(entry, state.settings.speed);
+        scheduleVerify(entry);
+        if (entry.panel) entry.panel.render();
+      }
+      scheduleLayout();
+      scheduleReport();
+    }
+    return { changed: prevControllable !== nowControllable, sourceChanged };
+  }
+
   function registerVideo(video) {
     if (!state.loaded || !instance.alive || entries.has(video) || !isVideo(video) || !isInThisDocument(video)) return;
     if (!contextValid()) {
@@ -242,15 +376,21 @@
       teardown();
       return;
     }
+    const controllable = !isRealtimeOrEmpty(video);
+    const rate = safeRate(video);
     // 一度外れて付け直された動画は、まだ拡張機能の速度のままなら所有権を引き継ぐ
     const kept = ownership.get(video);
-    const keepOwnership = !!kept && kept.appliedRate != null && S.sameSpeed(video.playbackRate, kept.appliedRate);
+    const keepOwnership = controllable && !!kept && kept.appliedRate != null && S.sameSpeed(rate, kept.appliedRate);
     const entry = {
       video,
-      baselineRate: keepOwnership ? kept.baselineRate : video.playbackRate,
+      controllable,
+      lastSrc: videoSrcKey(video),
+      lastSrcObject: video.srcObject || null,
+      baselineRate: keepOwnership ? kept.baselineRate : rate,
       appliedRate: keepOwnership ? kept.appliedRate : null,
       target: null,
       rejected: false,
+      rejectedRate: null,
       awaitingRateEvent: false,
       lastOperatedAt: 0,
       onScreen: false,
@@ -268,16 +408,29 @@
         // プレーヤーが復元を拒否した
       }
       entry.appliedRate = null;
-      entry.baselineRate = video.playbackRate;
+      entry.baselineRate = safeRate(video);
     }
     const opts = { signal: entry.listeners.signal, passive: true };
     video.addEventListener('ratechange', () => onRateChange(entry), opts);
     video.addEventListener('loadedmetadata', () => onLoadedMetadata(entry), opts);
-    for (const type of ['play', 'playing', 'pause', 'ended', 'emptied']) {
-      video.addEventListener(type, () => scheduleReport(), opts);
+    video.addEventListener('loadstart', () => syncVideoSource(entry, { applyRemember: true }), opts);
+    video.addEventListener('emptied', () => syncVideoSource(entry, { emptied: true }), opts);
+    for (const type of ['loadeddata', 'canplay', 'error']) {
+      video.addEventListener(type, () => {
+        syncVideoSource(entry);
+        scheduleLayout();
+        scheduleReport();
+      }, opts);
+    }
+    for (const type of ['play', 'playing', 'pause', 'ended']) {
+      video.addEventListener(type, () => {
+        syncVideoSource(entry);
+        if (type === 'playing') scheduleLayout();
+        scheduleReport();
+      }, opts);
     }
     resizeObserver.observe(video);
-    if (state.settings.enabled && state.settings.rememberSpeed) {
+    if (controllable && state.settings.enabled && state.settings.rememberSpeed && !isPlaybackRateLocked(video)) {
       applySpeed(entry, state.settings.speed);
       scheduleVerify(entry);
     }
@@ -304,7 +457,7 @@
   // -------------------------------------------------------------------------
 
   function isOwned(entry) {
-    return entry.appliedRate != null && S.sameSpeed(entry.video.playbackRate, entry.appliedRate);
+    return entry.appliedRate != null && S.sameSpeed(safeRate(entry.video), entry.appliedRate);
   }
 
   /** 拡張機能として速度を適用する。未所有なら直前の実速度を基準にする。 */
@@ -312,19 +465,26 @@
     const video = entry.video;
     const prevApplied = entry.appliedRate;
     const prevBaseline = entry.baselineRate;
-    const before = video.playbackRate;
+    const before = safeRate(video);
     if (!isOwned(entry)) entry.baselineRate = before;
     entry.appliedRate = speed;
     entry.target = speed;
     try {
       video.playbackRate = speed;
       // 値が変われば ratechange が後から届く。サイトが戻すならその処理の後に確かめる
-      if (!S.sameSpeed(before, video.playbackRate)) entry.awaitingRateEvent = true;
+      if (!S.sameSpeed(before, safeRate(video))) entry.awaitingRateEvent = true;
     } catch (_) {
       entry.appliedRate = prevApplied;
       entry.baselineRate = prevBaseline;
     }
-    entry.rejected = !S.sameSpeed(video.playbackRate, speed);
+    const after = safeRate(video);
+    const wasRejected = entry.rejected;
+    entry.rejected = !S.sameSpeed(after, speed);
+    entry.rejectedRate = entry.rejected ? after : null;
+    if (entry.rejected !== wasRejected) {
+      if (entry.rejected && entry.panel) entry.panel.hide();
+      scheduleLayout();
+    }
     return !entry.rejected;
   }
 
@@ -333,6 +493,10 @@
    * サイトが ratechange の中で速度を戻す場合も、戻した後の実速度で判定できる。
    */
   function whenRateSettled(list, callback) {
+    if (!list.some((e) => e.awaitingRateEvent && e.video.isConnected && entries.has(e.video))) {
+      callback();
+      return;
+    }
     const started = Date.now();
     const check = () => {
       const waiting = list.some((e) => e.awaitingRateEvent && e.video.isConnected && entries.has(e.video));
@@ -358,18 +522,36 @@
   }
 
   function verify(entry) {
-    if (entry.target != null) entry.rejected = !S.sameSpeed(entry.video.playbackRate, entry.target);
+    if (entry.target != null) {
+      const rate = safeRate(entry.video);
+      const wasRejected = entry.rejected;
+      entry.rejected = !S.sameSpeed(rate, entry.target);
+      entry.rejectedRate = entry.rejected ? rate : null;
+      if (entry.rejected !== wasRejected) {
+        if (entry.rejected && entry.panel) entry.panel.hide();
+        scheduleLayout();
+      }
+    }
   }
 
   function onRateChange(entry) {
     entry.awaitingRateEvent = false;
-    const rate = entry.video.playbackRate;
+    if (isRealtimeOrEmpty(entry.video)) return;
+    const rate = safeRate(entry.video);
     if (entry.appliedRate != null && !S.sameSpeed(rate, entry.appliedRate)) {
       // サイトや利用者のネイティブ操作: その値を新基準として所有を解除
       entry.baselineRate = rate;
       entry.appliedRate = null;
     }
-    if (entry.target != null && S.sameSpeed(rate, entry.target)) entry.rejected = false;
+    if (entry.rejected) {
+      const matchedTarget = entry.target != null && S.sameSpeed(rate, entry.target);
+      const movedAway = entry.rejectedRate != null && !S.sameSpeed(rate, entry.rejectedRate);
+      if (matchedTarget || movedAway) {
+        entry.rejected = false;
+        entry.rejectedRate = null;
+        scheduleLayout();
+      }
+    }
     if (entry.panel) entry.panel.render();
     scheduleReport();
   }
@@ -379,7 +561,9 @@
       teardown();
       return;
     }
-    if (state.settings.enabled && state.settings.rememberSpeed) {
+    syncVideoSource(entry);
+    if (isRealtimeOrEmpty(entry.video)) return;
+    if (state.settings.enabled && state.settings.rememberSpeed && !isPlaybackRateLocked(entry.video)) {
       applySpeed(entry, state.settings.speed);
       scheduleVerify(entry);
       if (entry.panel) entry.panel.render();
@@ -391,7 +575,7 @@
   function disableAll() {
     for (const entry of entries.values()) {
       const video = entry.video;
-      if (isOwned(entry)) {
+      if (!isRealtimeOrEmpty(video) && isOwned(entry)) {
         try {
           video.playbackRate = entry.baselineRate;
         } catch (_) {
@@ -399,10 +583,12 @@
         }
       }
       entry.appliedRate = null;
-      entry.baselineRate = video.playbackRate;
+      entry.baselineRate = safeRate(video);
       entry.target = null;
       entry.rejected = false;
+      entry.rejectedRate = null;
       clearTimeout(entry.verifyTimer);
+      entry.verifyTimer = 0;
       if (entry.panel) entry.panel.resetEditing();
     }
     scheduleLayout();
@@ -411,6 +597,8 @@
 
   function enableAll(speed) {
     for (const entry of entries.values()) {
+      syncVideoSource(entry);
+      if (isRealtimeOrEmpty(entry.video) || isPlaybackRateLocked(entry.video)) continue;
       applySpeed(entry, speed);
       scheduleVerify(entry);
       if (entry.panel) entry.panel.render();
@@ -422,25 +610,32 @@
   /** ポップアップからの速度指示: このフレームで検出済みの全動画へ。 */
   function handleSetSpeed(msg) {
     const speed = S.normalizeSpeed(msg.speed);
+    const targets = [];
     if (speed != null && state.settings.enabled) {
       scan(document);
       for (const entry of entries.values()) {
+        syncVideoSource(entry);
+        if (isRealtimeOrEmpty(entry.video)) continue;
+        clearTimeout(entry.verifyTimer);
+        entry.verifyTimer = 0;
         applySpeed(entry, speed);
         if (entry.panel) entry.panel.resetEditing();
+        targets.push(entry);
       }
     }
-    whenRateSettled([...entries.values()], () => {
-      for (const entry of entries.values()) {
+    whenRateSettled(targets, () => {
+      for (const entry of targets) {
         verify(entry);
         if (entry.panel) entry.panel.render();
       }
+      scheduleLayout();
       sendReport(msg.requestId, true);
     });
   }
 
   /** 動画上パネルからの操作: その動画1個だけ。保存速度も更新する。 */
   function overlaySetSpeed(entry, speed) {
-    if (!state.settings.enabled) return;
+    if (!state.settings.enabled || isRealtimeOrEmpty(entry.video)) return;
     const value = S.round2(S.clampSpeed(speed));
     entry.lastOperatedAt = Date.now();
     applySpeed(entry, value);
@@ -506,15 +701,15 @@
   }
 
   function buildReport(extra) {
-    const list = [...entries.values()].filter((e) => e.video.isConnected);
+    const list = [...entries.values()].filter((e) => isInThisDocument(e.video) && !isRealtimeOrEmpty(e.video));
     const rep = pickRepresentative(list);
     return {
       videoCount: list.length,
-      rates: list.map((e) => e.video.playbackRate),
-      speed: rep ? rep.video.playbackRate : null,
+      rates: list.map((e) => safeRate(e.video)),
+      speed: rep ? safeRate(rep.video) : null,
       playing: rep ? isPlaying(rep.video) : false,
       visible: rep ? isOnScreen(rep.video) : false,
-      startedAt: STARTED_AT,
+      startedAt,
       observedAt: Date.now(),
       ...(extra || {})
     };
@@ -579,14 +774,19 @@
         scheduleSweep();
         continue;
       }
+      const realtimeOrEmpty = isRealtimeOrEmpty(video);
+      if (realtimeOrEmpty !== !entry.controllable) {
+        syncVideoSource(entry);
+      }
+      const canShowPanel = !realtimeOrEmpty && !entry.rejected && !isPlaybackRateLocked(video);
       const rect = video.getBoundingClientRect();
-      const onScreen = isOnScreen(video, rect);
+      const onScreen = !realtimeOrEmpty && isOnScreen(video, rect);
       if (onScreen !== entry.onScreen) {
         entry.onScreen = onScreen;
         visibilityChanged = true;
       }
       let parent = null;
-      if (state.settings.enabled && state.settings.showOverlay && onScreen &&
+      if (state.settings.enabled && state.settings.showOverlay && canShowPanel && onScreen &&
           rect.width >= MIN_PANEL_WIDTH && rect.height >= MIN_PANEL_HEIGHT) {
         if (!fullscreen) parent = document.documentElement;
         else if (fullscreen !== video && composedContains(fullscreen, video)) {
@@ -621,6 +821,40 @@
     }
   }
 
+  function syncSettingsFromStorage() {
+    if (!instance.alive || !contextValid()) {
+      teardown();
+      return;
+    }
+    const sv = settingsVersion;
+    const lv = languageVersion;
+    chrome.storage.local
+      .get([KEYS.settings, KEYS.language])
+      .then(
+        (stored) => {
+          if (!instance.alive) return;
+          if (sv === settingsVersion) {
+            const prev = state.settings;
+            const next = S.sanitizeSettings(stored[KEYS.settings]);
+            state.settings = next;
+            if (prev.enabled !== next.enabled || prev.showOverlay !== next.showOverlay ||
+                prev.rememberSpeed !== next.rememberSpeed || prev.speed !== next.speed) {
+              onSettingsChanged(prev, next);
+            }
+          }
+          if (lv === languageVersion) {
+            const pref = I.sanitizePreference(stored[KEYS.language]);
+            if (pref !== state.languagePref) setLanguage(pref);
+          }
+          layoutAll();
+          scheduleReport(true);
+        },
+        () => {
+          if (!contextValid()) teardown();
+        }
+      );
+  }
+
   function installGlobalListeners() {
     const opts = { signal: globalListeners.signal, passive: true };
     const capture = { ...opts, capture: true };
@@ -638,7 +872,10 @@
       if (IS_TOP || sentAnyReport) send({ type: MSG.reportState, requestId: null, report: buildReport({ gone: true }) });
     }, opts);
     window.addEventListener('pageshow', (event) => {
-      if (event.persisted) scheduleReport(true);
+      if (!event.persisted) return;
+      // bfcache 復元時は凍結中に見逃した設定変更と document 世代を再同期する
+      startedAt = Math.max(startedAt + 1, Date.now());
+      syncSettingsFromStorage();
     }, opts);
     // 事前レンダリング中の報告は Service Worker が受け取らないので、表示されたら報告し直す
     if (document.prerendering) {
@@ -769,6 +1006,20 @@ button:disabled { opacity: .38; cursor: default; }
   background: #f4faf9;
   border: 3px solid #75e0ce;
 }
+.slider::-moz-range-track {
+  height: 6px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+}
+.slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #f4faf9;
+  border: 3px solid #75e0ce;
+}
 .slider:focus { outline: none; }
 .slider:focus-visible { outline: 2px solid #75e0ce; outline-offset: 4px; }
 .range { display: flex; justify-content: space-between; font-size: 11px; color: rgba(244, 250, 249, .7); }
@@ -806,17 +1057,21 @@ button:disabled { opacity: .38; cursor: default; }
 `;
 
   let sharedSheet = null;
+  let adoptFailed = false;
 
   function adoptStyles(shadow) {
-    try {
-      if (!sharedSheet) {
-        sharedSheet = new CSSStyleSheet();
-        sharedSheet.replaceSync(PANEL_CSS);
+    if (!adoptFailed) {
+      try {
+        if (!sharedSheet) {
+          sharedSheet = new CSSStyleSheet();
+          sharedSheet.replaceSync(PANEL_CSS);
+        }
+        shadow.adoptedStyleSheets = [sharedSheet];
+        return;
+      } catch (_) {
+        // 共有スタイルシートを使えない環境
+        adoptFailed = true;
       }
-      shadow.adoptedStyleSheets = [sharedSheet];
-      return;
-    } catch (_) {
-      // 共有スタイルシートを使えない環境
     }
     const style = document.createElement('style');
     style.textContent = PANEL_CSS;
@@ -953,7 +1208,7 @@ button:disabled { opacity: .38; cursor: default; }
         if (event.isTrusted) handler(event);
       });
       const entry = this.entry;
-      const current = () => entry.video.playbackRate;
+      const current = () => safeRate(entry.video);
       on(this.minus, 'click', () => this.choose(Math.max(S.MIN_SPEED, S.round2(current() - S.STEP))));
       on(this.plus, 'click', () => this.choose(Math.min(S.MAX_SPEED, S.round2(current() + S.STEP))));
       on(this.rate, 'click', () => this.choose(1));
@@ -980,11 +1235,13 @@ button:disabled { opacity: .38; cursor: default; }
       const finishPointer = () => {
         window.removeEventListener('pointerup', finishPointer, true);
         window.removeEventListener('pointercancel', finishPointer, true);
+        window.removeEventListener('blur', finishPointer);
         if (!pointerDown) return;
         pointerDown = false;
         setTimeout(() => {
           if (!pendingBlur) return;
           pendingBlur = false;
+          if (!instance.alive || !entries.has(entry.video)) return;
           if (this.shadow.activeElement !== this.input) this.commit();
         }, 0);
       };
@@ -994,6 +1251,7 @@ button:disabled { opacity: .38; cursor: default; }
         const capture = { capture: true, signal: entry.listeners.signal };
         window.addEventListener('pointerup', finishPointer, capture);
         window.addEventListener('pointercancel', finishPointer, capture);
+        window.addEventListener('blur', finishPointer, { signal: entry.listeners.signal });
       });
       const commitOnBlur = () => {
         if (pointerDown) {
@@ -1010,6 +1268,7 @@ button:disabled { opacity: .38; cursor: default; }
           event.preventDefault();
           this.commit();
         } else if (event.key === 'Escape') {
+          if (this.dirty || this.inputError) event.preventDefault();
           this.resetEditing();
         }
       });
@@ -1034,6 +1293,7 @@ button:disabled { opacity: .38; cursor: default; }
       if (value == null) {
         this.inputError = true;
         this.render();
+        scheduleLayout();
         return;
       }
       this.choose(value);
@@ -1048,7 +1308,7 @@ button:disabled { opacity: .38; cursor: default; }
     render() {
       const t = (key, params) => I.t(state.lang, key, params);
       const entry = this.entry;
-      const rate = entry.video.playbackRate;
+      const rate = safeRate(entry.video);
       const short = `${S.formatShort(rate)}×`;
 
       this.panel.lang = I.htmlLang(state.lang);
@@ -1145,6 +1405,7 @@ button:disabled { opacity: .38; cursor: default; }
         sendResponse({ ok: true });
         whenLoaded(() => {
           scan(document);
+          for (const e of entries.values()) syncVideoSource(e);
           const list = [...entries.values()];
           // 直前に速度を変えた動画があれば、サイト側の反応を待ってから報告する
           if (list.some((e) => e.awaitingRateEvent)) whenRateSettled(list, () => sendReport(msg.requestId, true));
@@ -1156,7 +1417,10 @@ button:disabled { opacity: .38; cursor: default; }
         whenLoaded(() => handleSetSpeed(msg));
         return false;
       case MSG.getState:
-        whenLoaded(() => sendResponse({ ok: true, report: buildReport() }));
+        whenLoaded(() => {
+          for (const e of entries.values()) syncVideoSource(e);
+          sendResponse({ ok: true, report: buildReport() });
+        });
         return true;
       default:
         return false;

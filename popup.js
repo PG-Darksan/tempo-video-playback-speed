@@ -193,7 +193,7 @@
         if (res && res.ok) {
           acceptState(res.state, true);
           ui.opResult = { target: speed, applied: res.applied, delivered: res.delivered };
-          if (res.applied > 0) ui.opResult = null;
+          if (res.applied > 0 || (res.delivered && res.state && res.state.videoCount === 0)) ui.opResult = null;
         } else {
           ui.opResult = { target: speed, applied: 0, delivered: false };
         }
@@ -285,18 +285,21 @@
   }
 
   function waitForComplete(tabId, timeoutMs) {
-    return new Promise((resolve) => {
+    let cancel = () => {};
+    const promise = new Promise((resolve) => {
       const done = () => {
         chrome.tabs.onUpdated.removeListener(listener);
         clearTimeout(timer);
         resolve();
       };
+      cancel = done;
       const listener = (id, info) => {
         if (id === tabId && info.status === 'complete') done();
       };
       const timer = setTimeout(done, timeoutMs);
       chrome.tabs.onUpdated.addListener(listener);
     });
+    return { promise, cancel };
   }
 
   async function reloadTab() {
@@ -309,14 +312,15 @@
     render();
     const tabId = ui.tab.id;
     let failed = false;
+    const completed = waitForComplete(tabId, 15000);
     try {
-      const completed = waitForComplete(tabId, 15000);
       await chrome.tabs.reload(tabId);
       ui.ignoreBefore = Date.now();
       ui.tabState = null;
       ui.stateKnown = false;
-      await completed;
+      await completed.promise;
     } catch (_) {
+      completed.cancel();
       failed = true;
     }
     ui.reloadPending = false;

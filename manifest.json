@@ -3,7 +3,7 @@
   "name": "__MSG_extName__",
   "short_name": "Tempo",
   "description": "__MSG_extDescription__",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "minimum_chrome_version": "119",
   "default_locale": "en",
   "homepage_url": "https://hisator-notebook.com",

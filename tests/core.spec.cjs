@@ -586,3 +586,40 @@ test('A34 worker再起動から実状態を再構築・URLや視聴情報を保�
     !/^(chrome-extension|chrome|edge|about|data|blob):/.test(u));
   expect(external).toEqual([]);
 });
+
+test('リアルタイム通信（MediaStream）・空video・速度変更拒否では動画上パネルを出さず、通常動画へ切替時は復帰する', async ({ ext, site, ja }) => {
+  await ext.save({ speed: 2, rememberSpeed: true });
+  const { page, tabId, popup } = await ext.setup(site.url('realtime.html'), 0);
+  await page.evaluate(() => window.__webrtcReady);
+  await page.waitForTimeout(400);
+  expect(await visiblePanels(page)).toBe(0);
+  expect(await rates(page)).toEqual([1, 1, 1, 1]);
+  expect((await ext.badge(tabId)).text).toBe('');
+  await expect(popup.locator('#noticeText')).toHaveText('動画が見つかりません。');
+
+  // 空 video → 通常動画: パネルが現れ、記憶速度 2× が適用される
+  await page.evaluate(() => setDynVod('/media/bright.webm'));
+  await expect.poll(() => visiblePanels(page)).toBe(1);
+  await expect.poll(() => rates(page)).toEqual([1, 1, 1, 2]);
+  await expect.poll(async () => (await ext.badge(tabId)).text).toBe('2×');
+
+  // 通常動画 → MediaStream: パネルが消え、元の速度へ戻り、バッジも空になる
+  await page.evaluate(() => setDynStream());
+  await expect.poll(() => visiblePanels(page)).toBe(0);
+  await expect.poll(() => rates(page)).toEqual([1, 1, 1, 1]);
+  await expect.poll(async () => (await ext.badge(tabId)).text).toBe('');
+
+  // MediaStream → 通常動画 → 空 video: パネルが再表示され、空にすると消える
+  await page.evaluate(() => setDynVod('/media/dark.webm'));
+  await expect.poll(() => visiblePanels(page)).toBe(1);
+  await page.evaluate(() => setDynEmpty());
+  await expect.poll(() => visiblePanels(page)).toBe(0);
+
+  // 速度変更を拒否する動画では拒否後にパネルを隠す（ポップアップの診断表示は維持）
+  await ext.save({ speed: 1 });
+  const r = await ext.setup(site.url('reject.html'), 1);
+  await expect.poll(() => visiblePanels(r.page)).toBe(1);
+  await preset(r.popup, 4).click();
+  await expect(r.popup.locator('#noticeText')).toHaveText('再生速度を変更できません。');
+  await expect.poll(() => visiblePanels(r.page)).toBe(0);
+});

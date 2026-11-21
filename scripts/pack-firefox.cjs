@@ -3,6 +3,7 @@
 // Chrome / Edge 用のソースはそのまま残し、 コピーに Firefox 向けの差分だけを当てる。
 //   node tools/pack-firefox.cjs   (gesture)
 //   node scripts/pack-firefox.cjs (speed)
+const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
@@ -35,13 +36,7 @@ function firefoxManifest(m) {
   delete out.minimum_chrome_version;
   // Firefox はイベントページ (background.scripts) で動く。 service_worker の importScripts の代わりに順に読み込む。
   out.background = { scripts: CONFIG.backgroundScripts };
-  if (Array.isArray(out.content_scripts)) {
-    out.content_scripts = out.content_scripts.map((cs) => {
-      const c = { ...cs };
-      delete c.match_origin_as_fallback; // Chrome 専用キー
-      return c;
-    });
-  }
+  // Firefox 128+ (strict_min_version 140.0) は match_origin_as_fallback に対応しているためそのまま保持する。
   out.browser_specific_settings = {
     gecko: {
       id: CONFIG.geckoId,
@@ -138,6 +133,10 @@ function zip(entries) {
 /* ------------------------------------------------------------ main */
 
 function build() {
+  const i18nScript = path.join(__dirname, 'build-i18n.cjs');
+  if (fs.existsSync(i18nScript)) {
+    execFileSync(process.execPath, [i18nScript, '--check'], { stdio: 'inherit' });
+  }
   const files = list(src).filter((rel) => CONFIG.include(rel));
   if (!files.includes('manifest.json')) throw new Error('manifest.json がありません');
   const manifest = JSON.parse(fs.readFileSync(path.join(src, 'manifest.json'), 'utf8'));
