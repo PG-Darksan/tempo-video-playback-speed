@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>player</title><link rel="stylesheet" href="/site.css"></head>
+<body>
+<h1>Player with its own listeners</h1>
+<div class="player" id="player" style="width:480px;background:#000">
+  <video id="v1" src="/media/bright.webm" muted loop playsinline></video>
+</div>
+<p><button id="fsBox">container fullscreen</button> <button id="fsVideo">video fullscreen</button></p>
+<script src="/common.js"></script>
+<script>
+  window.counts = { player: 0, doc: 0, toggles: 0 };
+  const player = document.getElementById('player');
+  const video = document.getElementById('v1');
+  for (const type of ['click', 'dblclick', 'pointerdown', 'pointerup', 'mousedown', 'mouseup', 'keydown', 'keyup']) {
+    player.addEventListener(type, () => counts.player++);
+    document.addEventListener(type, (e) => {
+      if (!(e.target.closest && e.target.closest('#fsBox,#fsVideo'))) counts.doc++;
+    });
+  }
+  // よくあるプレーヤーの動き: クリックや Space で再生／停止を切り替える
+  player.addEventListener('click', () => { counts.toggles++; video.paused ? video.play() : video.pause(); });
+  document.addEventListener('keydown', (e) => { if (e.key === ' ') counts.toggles++; });
+  document.getElementById('fsBox').onclick = () => player.requestFullscreen();
+  document.getElementById('fsVideo').onclick = () => video.requestFullscreen();
+</script>
+</body></html>

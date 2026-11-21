@@ -1,0 +1,7 @@
+body { margin: 16px; font: 14px/1.4 system-ui, sans-serif; background: #fafafa; color: #222; }
+h1 { font-size: 16px; margin: 0 0 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+video { display: block; width: 480px; height: 270px; background: #000; }
+video.small { width: 160px; height: 90px; }
+iframe { display: block; border: 1px solid #ccc; width: 520px; height: 300px; }
+.player { position: relative; }

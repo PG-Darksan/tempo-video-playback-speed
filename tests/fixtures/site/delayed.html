@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>delayed iframe</title><link rel="stylesheet" href="/site.css"></head>
+<body>
+<h1>Top without video; the iframe adds a video after 700 ms</h1>
+<div id="slot"></div>
+<script src="/config.js"></script>
+<script>
+  window.mountFrame = (page) => {
+    const slot = document.getElementById('slot');
+    slot.textContent = '';
+    const f = document.createElement('iframe');
+    f.id = 'xf';
+    f.src = TEMPO_TEST.crossOrigin + '/' + page;
+    slot.append(f);
+  };
+  mountFrame('frame-delayed.html');
+</script>
+</body></html>

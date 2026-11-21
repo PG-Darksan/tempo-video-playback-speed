@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=360">
+  <title>Tempo</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="header">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="21" height="21" focusable="false">
+        <path d="M8 5 18 12 8 19Z" fill="#fff"/>
+        <path d="M4 6v12" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+      </svg>
+    </span>
+    <h1 class="brand" id="brand"></h1>
+    <span class="status" id="status" role="status" aria-live="polite" aria-atomic="true"><bdi id="statusText"></bdi></span>
+    <label class="switch master">
+      <input type="checkbox" id="enabled" role="switch" disabled>
+      <span class="track" aria-hidden="true"></span>
+    </label>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="speedHeading">
+      <div class="card-head">
+        <h2 id="speedHeading"></h2>
+        <button type="button" class="link-button" id="reset" disabled></button>
+      </div>
+
+      <div id="onView">
+        <div class="value-row" dir="ltr">
+          <button type="button" class="step" id="minus" disabled>
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 8h9" /></svg>
+          </button>
+          <div class="value">
+            <input id="speedInput" class="speed-input" type="text" inputmode="decimal" autocomplete="off"
+                   spellcheck="false" aria-describedby="noticeText" disabled>
+            <span class="unit" aria-hidden="true">×</span>
+          </div>
+          <button type="button" class="step" id="plus" disabled>
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 8h9M8 3.5v9" /></svg>
+          </button>
+        </div>
+        <input type="range" id="slider" class="slider" min="0.25" max="16" step="0.05" dir="ltr" disabled>
+        <div class="range-labels" dir="ltr" aria-hidden="true"><span>0.25×</span><span>16.00×</span></div>
+        <div class="presets" id="presets" role="group" dir="ltr"></div>
+      </div>
+
+      <div id="offView" hidden>
+        <div class="off-value" id="offValue" dir="ltr"></div>
+        <div class="saved-row">
+          <span id="savedLabel"></span>
+          <span class="saved-value" id="savedValue" dir="ltr"></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="notice" id="notice" role="status" aria-live="polite" hidden>
+      <p id="noticeText"></p>
+      <button type="button" class="reload" id="reloadButton" hidden>
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path d="M13 8a5 5 0 1 1-1.46-3.54"/><path d="M13 3v3h-3"/>
+        </svg>
+      </button>
+    </div>
+
+    <section class="settings">
+      <label class="setting">
+        <span class="setting-label" id="showOverlayLabel"></span>
+        <span class="switch">
+          <input type="checkbox" id="showOverlay" role="switch" aria-labelledby="showOverlayLabel" disabled>
+          <span class="track" aria-hidden="true"></span>
+        </span>
+      </label>
+      <label class="setting">
+        <span class="setting-label" id="rememberLabel"></span>
+        <span class="switch">
+          <input type="checkbox" id="rememberSpeed" role="switch" aria-labelledby="rememberLabel" disabled>
+          <span class="track" aria-hidden="true"></span>
+        </span>
+      </label>
+      <div class="setting">
+        <label class="setting-label language-label" for="language">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <circle cx="8" cy="8" r="6.25"/><path d="M1.75 8h12.5M8 1.75c-3.2 3.4-3.2 9.1 0 12.5M8 1.75c3.2 3.4 3.2 9.1 0 12.5"/>
+          </svg>
+          <span id="languageLabel"></span>
+        </label>
+        <select id="language" class="language" disabled></select>
+      </div>
+    </section>
+
+    <a class="author" id="author" href="https://hisator-notebook.com" target="_blank" rel="noopener noreferrer">
+      <span id="authorText"></span>
+      <span class="visually-hidden" id="authorHint"></span>
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M6 3.5h6.5V10M12.5 3.5 4 12"/></svg>
+    </a>
+  </main>
+
+  <script src="shared.js"></script>
+  <script src="i18n.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

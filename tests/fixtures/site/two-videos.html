@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>two videos</title><link rel="stylesheet" href="/site.css"></head>
+<body>
+<h1>Two videos and a cross-origin iframe</h1>
+<div class="row">
+  <video id="v1" src="/media/bright.webm" muted loop playsinline></video>
+  <video id="v2" src="/media/dark.webm" muted loop playsinline></video>
+</div>
+<iframe id="xf" title="cross-origin video"></iframe>
+<script src="/config.js"></script>
+<script src="/common.js"></script>
+<script>document.getElementById('xf').src = TEMPO_TEST.crossOrigin + '/frame-video.html';</script>
+</body></html>

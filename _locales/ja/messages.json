@@ -1,0 +1,160 @@
+{
+  "extName": {
+    "message": "動画再生速度変更",
+    "description": "製品名。ストア、拡張機能の管理画面、ポップアップのヘッダーに表示。"
+  },
+  "extDescription": {
+    "message": "Web動画の再生速度を0.25〜16倍に変更。ツールバーと動画上の小さなパネルから操作できます。",
+    "description": "ストアと管理画面の短い説明。132文字以内。"
+  },
+  "actionTitle": {
+    "message": "動画再生速度変更",
+    "description": "タブの状態が分かる前のツールバーボタンのツールチップ。"
+  },
+  "statusOn": {
+    "message": "ON",
+    "description": "有効状態。"
+  },
+  "statusOff": {
+    "message": "OFF",
+    "description": "無効状態。"
+  },
+  "enableLabel": {
+    "message": "拡張機能を有効にする",
+    "description": "マスタースイッチのラベル。"
+  },
+  "playbackSpeed": {
+    "message": "再生速度",
+    "description": "速度カードの見出し。"
+  },
+  "reset": {
+    "message": "リセット",
+    "description": "1倍に戻すボタン。"
+  },
+  "resetLabel": {
+    "message": "1倍にリセット",
+    "description": "リセットボタンの説明。"
+  },
+  "decrease": {
+    "message": "0.25倍遅くする",
+    "description": "−ボタンの説明。"
+  },
+  "increase": {
+    "message": "0.25倍速くする",
+    "description": "＋ボタンの説明。"
+  },
+  "speedInput": {
+    "message": "再生速度（倍）",
+    "description": "数値入力のラベル。"
+  },
+  "speedSlider": {
+    "message": "再生速度のスライダー",
+    "description": "スライダーのラベル。"
+  },
+  "presets": {
+    "message": "よく使う速度",
+    "description": "プリセットのまとまりのラベル。"
+  },
+  "presetLabel": {
+    "message": "$SPEED$に設定",
+    "description": "プリセットボタンの説明。",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2×" }
+    }
+  },
+  "savedSpeedWhenOn": {
+    "message": "ON時の設定速度",
+    "description": "OFF中に表示する保存速度の見出し。"
+  },
+  "showOverlay": {
+    "message": "動画上に表示",
+    "description": "動画上パネルの表示設定。"
+  },
+  "rememberSpeed": {
+    "message": "速度を記憶",
+    "description": "保存速度の自動適用設定。"
+  },
+  "language": {
+    "message": "言語",
+    "description": "言語選択のラベル。"
+  },
+  "languageAuto": {
+    "message": "自動（ブラウザー）",
+    "description": "ブラウザーの言語に合わせる選択肢。"
+  },
+  "authorLink": {
+    "message": "作者の他のアプリ",
+    "description": "作者サイトへのリンク。"
+  },
+  "opensNewTab": {
+    "message": "（新しいタブで開きます）",
+    "description": "読み上げ用の補足。"
+  },
+  "errLoadSettings": {
+    "message": "設定を読み込めませんでした。開き直してください。",
+    "description": "初期設定の読込失敗。"
+  },
+  "errSaveSettings": {
+    "message": "設定を保存できませんでした。",
+    "description": "設定または言語の保存失敗。"
+  },
+  "errReload": {
+    "message": "再読み込みできませんでした。",
+    "description": "再読み込みAPIの失敗。"
+  },
+  "errInput": {
+    "message": "0.25〜16の数値を入力してください。",
+    "description": "空欄・非数値・範囲外の入力。"
+  },
+  "errNoTab": {
+    "message": "操作するタブを確認できません。開き直してください。",
+    "description": "タブ自体がない。"
+  },
+  "msgReload": {
+    "message": "ページを再読み込みしてください。",
+    "description": "通常ページで状態報告が得られない。"
+  },
+  "reloadTab": {
+    "message": "このタブを再読み込み",
+    "description": "再読み込みボタンの説明。"
+  },
+  "errCannotConfirm": {
+    "message": "再生速度を確認できません。",
+    "description": "通信失敗後、再照会でも目標速度を確認できない。"
+  },
+  "msgNoVideo": {
+    "message": "動画が見つかりません。",
+    "description": "接続済みで動画0個。"
+  },
+  "errCannotChange": {
+    "message": "再生速度を変更できません。",
+    "description": "速度変更がページ側に拒否された。"
+  },
+  "overlayRegion": {
+    "message": "再生速度コントローラー",
+    "description": "動画上パネルの名前。"
+  },
+  "overlayCurrent": {
+    "message": "現在 $SPEED$。押すと1倍に戻します",
+    "description": "動画上パネルの現在速度ボタンの説明。",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2.55×" }
+    }
+  },
+  "showDetails": {
+    "message": "詳細を表示",
+    "description": "詳細欄を開くボタン。"
+  },
+  "hideDetails": {
+    "message": "詳細を隠す",
+    "description": "詳細欄を閉じるボタン。"
+  },
+  "fold": {
+    "message": "コントローラーを折りたたむ",
+    "description": "パネルを小さなアイコンにするボタン。"
+  },
+  "openController": {
+    "message": "コントローラーを開く",
+    "description": "折りたたんだパネルを戻すボタン。"
+  }
+}

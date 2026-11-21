@@ -1,0 +1,14 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>delayed frame</title><link rel="stylesheet" href="/site.css">
+<style>body { margin: 8px; }</style></head>
+<body>
+<p>video appears later</p>
+<script src="/common.js"></script>
+<script>
+  setTimeout(() => {
+    const v = T.makeVideo('/media/dark.webm');
+    v.id = 'late';
+    document.body.append(v);
+  }, 700);
+</script>
+</body></html>

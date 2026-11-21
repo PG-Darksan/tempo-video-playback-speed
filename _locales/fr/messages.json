@@ -1,0 +1,160 @@
+{
+  "extName": {
+    "message": "Tempo – Vitesse de lecture vidéo",
+    "description": "Product name. Shown in the store, the extensions page and the popup header. Max 75 characters."
+  },
+  "extDescription": {
+    "message": "Modifiez la vitesse des vidéos web de 0.25× à 16× depuis la barre d'outils ou un petit panneau sur la vidéo.",
+    "description": "Short store/manifest description. Max 132 characters."
+  },
+  "actionTitle": {
+    "message": "Tempo – Vitesse de lecture vidéo",
+    "description": "Tooltip of the toolbar button before any tab state is known."
+  },
+  "statusOn": {
+    "message": "ON",
+    "description": "Extension state: enabled. Very short (header, badge tooltip)."
+  },
+  "statusOff": {
+    "message": "OFF",
+    "description": "Extension state: disabled. Very short. Also shown large in the middle of the popup when disabled."
+  },
+  "enableLabel": {
+    "message": "Activer l'extension",
+    "description": "Accessible label of the master on/off switch."
+  },
+  "playbackSpeed": {
+    "message": "Vitesse de lecture",
+    "description": "Heading of the speed card."
+  },
+  "reset": {
+    "message": "Réinitialiser",
+    "description": "Visible text of the button that resets the speed to 1×."
+  },
+  "resetLabel": {
+    "message": "Revenir à 1×",
+    "description": "Accessible label / tooltip of the reset button."
+  },
+  "decrease": {
+    "message": "Ralentir de 0.25×",
+    "description": "Accessible label of the minus button."
+  },
+  "increase": {
+    "message": "Accélérer de 0.25×",
+    "description": "Accessible label of the plus button."
+  },
+  "speedInput": {
+    "message": "Vitesse de lecture (×)",
+    "description": "Accessible label of the numeric speed input."
+  },
+  "speedSlider": {
+    "message": "Curseur de vitesse de lecture",
+    "description": "Accessible label of the speed slider."
+  },
+  "presets": {
+    "message": "Vitesses prédéfinies",
+    "description": "Accessible label of the group of preset speed buttons."
+  },
+  "presetLabel": {
+    "message": "Régler sur $SPEED$",
+    "description": "Accessible label of a preset button.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2×" }
+    }
+  },
+  "savedSpeedWhenOn": {
+    "message": "Vitesse à l'activation",
+    "description": "Shown while disabled: the saved speed that will be used when the extension is turned on again."
+  },
+  "showOverlay": {
+    "message": "Afficher sur les vidéos",
+    "description": "Setting: show the small control panel on top of videos."
+  },
+  "rememberSpeed": {
+    "message": "Mémoriser la vitesse",
+    "description": "Setting: automatically apply the saved speed to newly found videos."
+  },
+  "language": {
+    "message": "Langue",
+    "description": "Label of the language selector."
+  },
+  "languageAuto": {
+    "message": "Auto (navigateur)",
+    "description": "Language option that follows the browser language. Keep short."
+  },
+  "authorLink": {
+    "message": "Autres applis de l'auteur",
+    "description": "Link to the author's website."
+  },
+  "opensNewTab": {
+    "message": "(s'ouvre dans un nouvel onglet)",
+    "description": "Screen-reader hint appended to the author link."
+  },
+  "errLoadSettings": {
+    "message": "Impossible de charger les paramètres. Rouvrez cette fenêtre.",
+    "description": "Error when the settings cannot be read when the popup opens."
+  },
+  "errSaveSettings": {
+    "message": "Impossible d'enregistrer les paramètres.",
+    "description": "Error when saving settings or language failed."
+  },
+  "errReload": {
+    "message": "Impossible d'actualiser la page.",
+    "description": "Error when reloading the tab failed."
+  },
+  "errInput": {
+    "message": "Saisissez un nombre entre 0.25 et 16.",
+    "description": "Error for empty, non-numeric or out-of-range input."
+  },
+  "errNoTab": {
+    "message": "Onglet à contrôler introuvable. Rouvrez cette fenêtre.",
+    "description": "Error when there is no active tab."
+  },
+  "msgReload": {
+    "message": "Veuillez actualiser la page.",
+    "description": "Guidance when the page does not respond (e.g. it was opened before the extension was installed)."
+  },
+  "reloadTab": {
+    "message": "Actualiser cet onglet",
+    "description": "Accessible label / tooltip of the icon-only reload button."
+  },
+  "errCannotConfirm": {
+    "message": "Impossible de vérifier la vitesse de lecture.",
+    "description": "Error when, after a communication failure, the requested speed could not be observed."
+  },
+  "msgNoVideo": {
+    "message": "Aucune vidéo trouvée.",
+    "description": "Guidance when the page responded but contains no video."
+  },
+  "errCannotChange": {
+    "message": "Impossible de modifier la vitesse de lecture.",
+    "description": "Error when the page or player rejected the speed change."
+  },
+  "overlayRegion": {
+    "message": "Contrôleur de vitesse de lecture",
+    "description": "Accessible name of the panel shown on top of a video."
+  },
+  "overlayCurrent": {
+    "message": "Vitesse actuelle : $SPEED$. Appuyez pour revenir à 1×",
+    "description": "Accessible label / tooltip of the current-speed button on the video panel.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2.55×" }
+    }
+  },
+  "showDetails": {
+    "message": "Afficher les détails",
+    "description": "Button on the video panel that opens the slider and presets."
+  },
+  "hideDetails": {
+    "message": "Masquer les détails",
+    "description": "Same button when the details are open."
+  },
+  "fold": {
+    "message": "Réduire le contrôleur",
+    "description": "Button that shrinks the video panel to a small icon."
+  },
+  "openController": {
+    "message": "Ouvrir le contrôleur",
+    "description": "Accessible label of the small icon that restores the collapsed video panel."
+  }
+}

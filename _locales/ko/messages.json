@@ -1,0 +1,160 @@
+{
+  "extName": {
+    "message": "Tempo – 동영상 재생 속도",
+    "description": "Product name. Shown in the store, the extensions page and the popup header. Max 75 characters."
+  },
+  "extDescription": {
+    "message": "웹 동영상의 재생 속도를 0.25×~16×로 바꿉니다. 툴바 또는 동영상 위의 작은 패널에서 조작할 수 있습니다.",
+    "description": "Short store/manifest description. Max 132 characters."
+  },
+  "actionTitle": {
+    "message": "Tempo – 동영상 재생 속도",
+    "description": "Tooltip of the toolbar button before any tab state is known."
+  },
+  "statusOn": {
+    "message": "ON",
+    "description": "Extension state: enabled. Very short (header, badge tooltip)."
+  },
+  "statusOff": {
+    "message": "OFF",
+    "description": "Extension state: disabled. Very short. Also shown large in the middle of the popup when disabled."
+  },
+  "enableLabel": {
+    "message": "확장 프로그램 사용",
+    "description": "Accessible label of the master on/off switch."
+  },
+  "playbackSpeed": {
+    "message": "재생 속도",
+    "description": "Heading of the speed card."
+  },
+  "reset": {
+    "message": "초기화",
+    "description": "Visible text of the button that resets the speed to 1×."
+  },
+  "resetLabel": {
+    "message": "1×로 초기화",
+    "description": "Accessible label / tooltip of the reset button."
+  },
+  "decrease": {
+    "message": "0.25× 느리게",
+    "description": "Accessible label of the minus button."
+  },
+  "increase": {
+    "message": "0.25× 빠르게",
+    "description": "Accessible label of the plus button."
+  },
+  "speedInput": {
+    "message": "재생 속도(×)",
+    "description": "Accessible label of the numeric speed input."
+  },
+  "speedSlider": {
+    "message": "재생 속도 슬라이더",
+    "description": "Accessible label of the speed slider."
+  },
+  "presets": {
+    "message": "자주 쓰는 속도",
+    "description": "Accessible label of the group of preset speed buttons."
+  },
+  "presetLabel": {
+    "message": "$SPEED$로 설정",
+    "description": "Accessible label of a preset button.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2×" }
+    }
+  },
+  "savedSpeedWhenOn": {
+    "message": "ON일 때 속도",
+    "description": "Shown while disabled: the saved speed that will be used when the extension is turned on again."
+  },
+  "showOverlay": {
+    "message": "동영상 위에 표시",
+    "description": "Setting: show the small control panel on top of videos."
+  },
+  "rememberSpeed": {
+    "message": "속도 기억",
+    "description": "Setting: automatically apply the saved speed to newly found videos."
+  },
+  "language": {
+    "message": "언어",
+    "description": "Label of the language selector."
+  },
+  "languageAuto": {
+    "message": "자동(브라우저)",
+    "description": "Language option that follows the browser language. Keep short."
+  },
+  "authorLink": {
+    "message": "제작자의 다른 앱",
+    "description": "Link to the author's website."
+  },
+  "opensNewTab": {
+    "message": "(새 탭에서 열림)",
+    "description": "Screen-reader hint appended to the author link."
+  },
+  "errLoadSettings": {
+    "message": "설정을 불러오지 못했습니다. 이 창을 다시 열어 주세요.",
+    "description": "Error when the settings cannot be read when the popup opens."
+  },
+  "errSaveSettings": {
+    "message": "설정을 저장하지 못했습니다.",
+    "description": "Error when saving settings or language failed."
+  },
+  "errReload": {
+    "message": "페이지를 새로고침하지 못했습니다.",
+    "description": "Error when reloading the tab failed."
+  },
+  "errInput": {
+    "message": "0.25~16 사이의 숫자를 입력하세요.",
+    "description": "Error for empty, non-numeric or out-of-range input."
+  },
+  "errNoTab": {
+    "message": "조작할 탭을 찾을 수 없습니다. 이 창을 다시 열어 주세요.",
+    "description": "Error when there is no active tab."
+  },
+  "msgReload": {
+    "message": "페이지를 새로고침해 주세요.",
+    "description": "Guidance when the page does not respond (e.g. it was opened before the extension was installed)."
+  },
+  "reloadTab": {
+    "message": "이 탭 새로고침",
+    "description": "Accessible label / tooltip of the icon-only reload button."
+  },
+  "errCannotConfirm": {
+    "message": "재생 속도를 확인할 수 없습니다.",
+    "description": "Error when, after a communication failure, the requested speed could not be observed."
+  },
+  "msgNoVideo": {
+    "message": "동영상을 찾을 수 없습니다.",
+    "description": "Guidance when the page responded but contains no video."
+  },
+  "errCannotChange": {
+    "message": "재생 속도를 변경할 수 없습니다.",
+    "description": "Error when the page or player rejected the speed change."
+  },
+  "overlayRegion": {
+    "message": "재생 속도 컨트롤러",
+    "description": "Accessible name of the panel shown on top of a video."
+  },
+  "overlayCurrent": {
+    "message": "현재 $SPEED$. 누르면 1×로 되돌립니다",
+    "description": "Accessible label / tooltip of the current-speed button on the video panel.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2.55×" }
+    }
+  },
+  "showDetails": {
+    "message": "세부정보 표시",
+    "description": "Button on the video panel that opens the slider and presets."
+  },
+  "hideDetails": {
+    "message": "세부정보 숨기기",
+    "description": "Same button when the details are open."
+  },
+  "fold": {
+    "message": "컨트롤러 접기",
+    "description": "Button that shrinks the video panel to a small icon."
+  },
+  "openController": {
+    "message": "컨트롤러 열기",
+    "description": "Accessible label of the small icon that restores the collapsed video panel."
+  }
+}

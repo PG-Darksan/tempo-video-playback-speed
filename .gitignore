@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+
+# Test outputs
+tests/results/
+tests/test-results/
+playwright-report/
+
+# OS / Editor / Logs
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.env
+.env.*

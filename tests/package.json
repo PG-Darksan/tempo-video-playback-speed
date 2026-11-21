@@ -1,0 +1,27 @@
+{
+  "name": "tempo-browser-tests",
+  "private": true,
+  "description": "動画再生速度変更 (Tempo) の実ブラウザーテスト",
+  "scripts": {
+    "test": "playwright test core --project=chromium",
+    "test:edge": "playwright test core --project=edge",
+    "test:i18n": "playwright test i18n --project=chromium",
+    "test:i18n:edge": "playwright test i18n --project=edge",
+    "test:settings": "playwright test settings --project=chromium",
+    "test:settings:edge": "playwright test settings --project=edge",
+    "test:folded": "playwright test folded --project=chromium",
+    "test:folded:edge": "playwright test folded --project=edge",
+    "test:package": "playwright test package --project=chromium",
+    "test:package:edge": "playwright test package --project=edge",
+    "make:fixture": "node make-fixture.cjs",
+    "store:assets": "node store-assets.cjs",
+    "test:chrome": "playwright test core --project=chrome",
+    "test:i18n:chrome": "playwright test i18n --project=chrome",
+    "test:settings:chrome": "playwright test settings --project=chrome",
+    "test:folded:chrome": "playwright test folded --project=chrome",
+    "test:package:chrome": "playwright test package --project=chrome"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
+}

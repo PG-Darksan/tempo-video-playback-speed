@@ -1,0 +1,160 @@
+{
+  "extName": {
+    "message": "Tempo – Video Playback Speed",
+    "description": "Product name. Shown in the store, the extensions page and the popup header. Max 75 characters."
+  },
+  "extDescription": {
+    "message": "Change web video playback speed from 0.25× to 16× using the toolbar or a small panel on the video.",
+    "description": "Short store/manifest description. Max 132 characters."
+  },
+  "actionTitle": {
+    "message": "Tempo – Video Playback Speed",
+    "description": "Tooltip of the toolbar button before any tab state is known."
+  },
+  "statusOn": {
+    "message": "ON",
+    "description": "Extension state: enabled. Very short (header, badge tooltip)."
+  },
+  "statusOff": {
+    "message": "OFF",
+    "description": "Extension state: disabled. Very short. Also shown large in the middle of the popup when disabled."
+  },
+  "enableLabel": {
+    "message": "Enable the extension",
+    "description": "Accessible label of the master on/off switch."
+  },
+  "playbackSpeed": {
+    "message": "Playback speed",
+    "description": "Heading of the speed card."
+  },
+  "reset": {
+    "message": "Reset",
+    "description": "Visible text of the button that resets the speed to 1×."
+  },
+  "resetLabel": {
+    "message": "Reset to 1×",
+    "description": "Accessible label / tooltip of the reset button."
+  },
+  "decrease": {
+    "message": "Slower by 0.25×",
+    "description": "Accessible label of the minus button."
+  },
+  "increase": {
+    "message": "Faster by 0.25×",
+    "description": "Accessible label of the plus button."
+  },
+  "speedInput": {
+    "message": "Playback speed (×)",
+    "description": "Accessible label of the numeric speed input."
+  },
+  "speedSlider": {
+    "message": "Playback speed slider",
+    "description": "Accessible label of the speed slider."
+  },
+  "presets": {
+    "message": "Preset speeds",
+    "description": "Accessible label of the group of preset speed buttons."
+  },
+  "presetLabel": {
+    "message": "Set to $SPEED$",
+    "description": "Accessible label of a preset button.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2×" }
+    }
+  },
+  "savedSpeedWhenOn": {
+    "message": "Speed when ON",
+    "description": "Shown while disabled: the saved speed that will be used when the extension is turned on again."
+  },
+  "showOverlay": {
+    "message": "Show on videos",
+    "description": "Setting: show the small control panel on top of videos."
+  },
+  "rememberSpeed": {
+    "message": "Remember speed",
+    "description": "Setting: automatically apply the saved speed to newly found videos."
+  },
+  "language": {
+    "message": "Language",
+    "description": "Label of the language selector."
+  },
+  "languageAuto": {
+    "message": "Auto (browser)",
+    "description": "Language option that follows the browser language. Keep short."
+  },
+  "authorLink": {
+    "message": "More apps by the author",
+    "description": "Link to the author's website."
+  },
+  "opensNewTab": {
+    "message": "(opens in a new tab)",
+    "description": "Screen-reader hint appended to the author link."
+  },
+  "errLoadSettings": {
+    "message": "Couldn't load settings. Please reopen this window.",
+    "description": "Error when the settings cannot be read when the popup opens."
+  },
+  "errSaveSettings": {
+    "message": "Couldn't save settings.",
+    "description": "Error when saving settings or language failed."
+  },
+  "errReload": {
+    "message": "Couldn't reload the page.",
+    "description": "Error when reloading the tab failed."
+  },
+  "errInput": {
+    "message": "Enter a number from 0.25 to 16.",
+    "description": "Error for empty, non-numeric or out-of-range input."
+  },
+  "errNoTab": {
+    "message": "Can't find the tab to control. Please reopen this window.",
+    "description": "Error when there is no active tab."
+  },
+  "msgReload": {
+    "message": "Please reload the page.",
+    "description": "Guidance when the page does not respond (e.g. it was opened before the extension was installed)."
+  },
+  "reloadTab": {
+    "message": "Reload this tab",
+    "description": "Accessible label / tooltip of the icon-only reload button."
+  },
+  "errCannotConfirm": {
+    "message": "Couldn't confirm the playback speed.",
+    "description": "Error when, after a communication failure, the requested speed could not be observed."
+  },
+  "msgNoVideo": {
+    "message": "No video found.",
+    "description": "Guidance when the page responded but contains no video."
+  },
+  "errCannotChange": {
+    "message": "Couldn't change the playback speed.",
+    "description": "Error when the page or player rejected the speed change."
+  },
+  "overlayRegion": {
+    "message": "Playback speed controller",
+    "description": "Accessible name of the panel shown on top of a video."
+  },
+  "overlayCurrent": {
+    "message": "Now $SPEED$. Press to reset to 1×",
+    "description": "Accessible label / tooltip of the current-speed button on the video panel.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2.55×" }
+    }
+  },
+  "showDetails": {
+    "message": "Show details",
+    "description": "Button on the video panel that opens the slider and presets."
+  },
+  "hideDetails": {
+    "message": "Hide details",
+    "description": "Same button when the details are open."
+  },
+  "fold": {
+    "message": "Collapse controller",
+    "description": "Button that shrinks the video panel to a small icon."
+  },
+  "openController": {
+    "message": "Open controller",
+    "description": "Accessible label of the small icon that restores the collapsed video panel."
+  }
+}

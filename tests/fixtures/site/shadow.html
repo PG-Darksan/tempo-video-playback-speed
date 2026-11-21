@@ -1,0 +1,41 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>shadow</title><link rel="stylesheet" href="/site.css"></head>
+<body>
+<h1>Open Shadow DOM</h1>
+<div class="row" id="row"><div id="host1"></div><div id="host2"></div></div>
+<script src="/common.js"></script>
+<script>
+  const style = '<style>video{display:block;width:400px;height:225px;background:#000}</style>';
+  const r1 = document.getElementById('host1').attachShadow({ mode: 'open' });
+  r1.innerHTML = style + '<video id="s1" src="/media/bright.webm" muted loop playsinline></video>';
+
+  window.shadowVideos = () => {
+    const out = [];
+    const walk = (root) => {
+      root.querySelectorAll('*').forEach((el) => {
+        if (el.localName === 'video') out.push(el);
+        if (el.shadowRoot && el.localName !== 'tempo-speed-panel') walk(el.shadowRoot);
+      });
+    };
+    walk(document);
+    return out;
+  };
+  window.shadowRates = () => Object.fromEntries(shadowVideos().map((v) => [v.id, v.playbackRate]));
+  window.addShadowHost = () => {
+    const h = document.createElement('div');
+    h.id = 'host3';
+    h.attachShadow({ mode: 'open' }).innerHTML = style + '<video id="s3" src="/media/dark.webm" muted loop playsinline></video>';
+    document.getElementById('row').append(h);
+  };
+  window.addIntoRoot = () => {
+    const v = T.makeVideo('/media/dark.webm');
+    v.id = 's1b';
+    v.style.cssText = 'display:block;width:400px;height:225px';
+    r1.append(v);
+  };
+  window.lateAttach = () => {
+    document.getElementById('host2').attachShadow({ mode: 'open' }).innerHTML =
+      style + '<video id="s2" src="/media/dark.webm" muted loop playsinline></video>';
+  };
+</script>
+</body></html>

@@ -1,0 +1,160 @@
+{
+  "extName": {
+    "message": "Tempo – वीडियो प्लेबैक स्पीड",
+    "description": "Product name. Shown in the store, the extensions page and the popup header. Max 75 characters."
+  },
+  "extDescription": {
+    "message": "वेब वीडियो की प्लेबैक स्पीड 0.25× से 16× तक बदलें – टूलबार से या वीडियो पर दिखने वाले छोटे पैनल से।",
+    "description": "Short store/manifest description. Max 132 characters."
+  },
+  "actionTitle": {
+    "message": "Tempo – वीडियो प्लेबैक स्पीड",
+    "description": "Tooltip of the toolbar button before any tab state is known."
+  },
+  "statusOn": {
+    "message": "ON",
+    "description": "Extension state: enabled. Very short (header, badge tooltip)."
+  },
+  "statusOff": {
+    "message": "OFF",
+    "description": "Extension state: disabled. Very short. Also shown large in the middle of the popup when disabled."
+  },
+  "enableLabel": {
+    "message": "एक्सटेंशन चालू करें",
+    "description": "Accessible label of the master on/off switch."
+  },
+  "playbackSpeed": {
+    "message": "प्लेबैक स्पीड",
+    "description": "Heading of the speed card."
+  },
+  "reset": {
+    "message": "रीसेट",
+    "description": "Visible text of the button that resets the speed to 1×."
+  },
+  "resetLabel": {
+    "message": "1× पर रीसेट करें",
+    "description": "Accessible label / tooltip of the reset button."
+  },
+  "decrease": {
+    "message": "0.25× धीमा करें",
+    "description": "Accessible label of the minus button."
+  },
+  "increase": {
+    "message": "0.25× तेज़ करें",
+    "description": "Accessible label of the plus button."
+  },
+  "speedInput": {
+    "message": "प्लेबैक स्पीड (×)",
+    "description": "Accessible label of the numeric speed input."
+  },
+  "speedSlider": {
+    "message": "प्लेबैक स्पीड स्लाइडर",
+    "description": "Accessible label of the speed slider."
+  },
+  "presets": {
+    "message": "प्रीसेट स्पीड",
+    "description": "Accessible label of the group of preset speed buttons."
+  },
+  "presetLabel": {
+    "message": "$SPEED$ पर सेट करें",
+    "description": "Accessible label of a preset button.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2×" }
+    }
+  },
+  "savedSpeedWhenOn": {
+    "message": "ON होने पर स्पीड",
+    "description": "Shown while disabled: the saved speed that will be used when the extension is turned on again."
+  },
+  "showOverlay": {
+    "message": "वीडियो पर दिखाएं",
+    "description": "Setting: show the small control panel on top of videos."
+  },
+  "rememberSpeed": {
+    "message": "स्पीड याद रखें",
+    "description": "Setting: automatically apply the saved speed to newly found videos."
+  },
+  "language": {
+    "message": "भाषा",
+    "description": "Label of the language selector."
+  },
+  "languageAuto": {
+    "message": "ऑटो (ब्राउज़र)",
+    "description": "Language option that follows the browser language. Keep short."
+  },
+  "authorLink": {
+    "message": "डेवलपर के अन्य ऐप",
+    "description": "Link to the author's website."
+  },
+  "opensNewTab": {
+    "message": "(नए टैब में खुलता है)",
+    "description": "Screen-reader hint appended to the author link."
+  },
+  "errLoadSettings": {
+    "message": "सेटिंग लोड नहीं हो सकीं। कृपया यह विंडो फिर से खोलें।",
+    "description": "Error when the settings cannot be read when the popup opens."
+  },
+  "errSaveSettings": {
+    "message": "सेटिंग सेव नहीं हो सकीं।",
+    "description": "Error when saving settings or language failed."
+  },
+  "errReload": {
+    "message": "पेज रीलोड नहीं हो सका।",
+    "description": "Error when reloading the tab failed."
+  },
+  "errInput": {
+    "message": "0.25 से 16 तक की कोई संख्या डालें।",
+    "description": "Error for empty, non-numeric or out-of-range input."
+  },
+  "errNoTab": {
+    "message": "कंट्रोल करने के लिए टैब नहीं मिला। कृपया यह विंडो फिर से खोलें।",
+    "description": "Error when there is no active tab."
+  },
+  "msgReload": {
+    "message": "कृपया पेज रीलोड करें।",
+    "description": "Guidance when the page does not respond (e.g. it was opened before the extension was installed)."
+  },
+  "reloadTab": {
+    "message": "यह टैब रीलोड करें",
+    "description": "Accessible label / tooltip of the icon-only reload button."
+  },
+  "errCannotConfirm": {
+    "message": "प्लेबैक स्पीड की पुष्टि नहीं हो सकी।",
+    "description": "Error when, after a communication failure, the requested speed could not be observed."
+  },
+  "msgNoVideo": {
+    "message": "कोई वीडियो नहीं मिला।",
+    "description": "Guidance when the page responded but contains no video."
+  },
+  "errCannotChange": {
+    "message": "प्लेबैक स्पीड नहीं बदली जा सकी।",
+    "description": "Error when the page or player rejected the speed change."
+  },
+  "overlayRegion": {
+    "message": "प्लेबैक स्पीड कंट्रोलर",
+    "description": "Accessible name of the panel shown on top of a video."
+  },
+  "overlayCurrent": {
+    "message": "अभी $SPEED$। 1× पर रीसेट करने के लिए दबाएं",
+    "description": "Accessible label / tooltip of the current-speed button on the video panel.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2.55×" }
+    }
+  },
+  "showDetails": {
+    "message": "विवरण दिखाएं",
+    "description": "Button on the video panel that opens the slider and presets."
+  },
+  "hideDetails": {
+    "message": "विवरण छिपाएं",
+    "description": "Same button when the details are open."
+  },
+  "fold": {
+    "message": "कंट्रोलर छोटा करें",
+    "description": "Button that shrinks the video panel to a small icon."
+  },
+  "openController": {
+    "message": "कंट्रोलर खोलें",
+    "description": "Accessible label of the small icon that restores the collapsed video panel."
+  }
+}

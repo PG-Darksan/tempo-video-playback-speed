@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>single</title><link rel="stylesheet" href="/site.css"></head>
+<body>
+<h1>One video</h1>
+<div class="row" id="row"><video id="v1" src="/media/bright.webm" muted loop playsinline></video></div>
+<script src="/common.js"></script>
+<script>
+  window.addVideo = (src = '/media/dark.webm') => {
+    const v = T.makeVideo(src);
+    v.id = 'v' + (T.videos().length + 1);
+    document.getElementById('row').append(v);
+    return v.id;
+  };
+  window.resetSource = (id = 'v1') => {
+    const v = document.getElementById(id);
+    v.src = v.src.includes('bright') ? '/media/dark.webm' : '/media/bright.webm';
+    v.load();
+  };
+  window.removeVideo = (id) => document.getElementById(id).remove();
+</script>
+</body></html>

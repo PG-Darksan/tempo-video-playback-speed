@@ -1,0 +1,160 @@
+{
+  "extName": {
+    "message": "Tempo – سرعة تشغيل الفيديو",
+    "description": "Product name. Shown in the store, the extensions page and the popup header. Max 75 characters."
+  },
+  "extDescription": {
+    "message": "غيّر سرعة تشغيل فيديوهات الويب من 0.25× إلى 16× من شريط الأدوات أو من لوحة صغيرة فوق الفيديو.",
+    "description": "Short store/manifest description. Max 132 characters."
+  },
+  "actionTitle": {
+    "message": "Tempo – سرعة تشغيل الفيديو",
+    "description": "Tooltip of the toolbar button before any tab state is known."
+  },
+  "statusOn": {
+    "message": "ON",
+    "description": "Extension state: enabled. Very short (header, badge tooltip)."
+  },
+  "statusOff": {
+    "message": "OFF",
+    "description": "Extension state: disabled. Very short. Also shown large in the middle of the popup when disabled."
+  },
+  "enableLabel": {
+    "message": "تفعيل الإضافة",
+    "description": "Accessible label of the master on/off switch."
+  },
+  "playbackSpeed": {
+    "message": "سرعة التشغيل",
+    "description": "Heading of the speed card."
+  },
+  "reset": {
+    "message": "إعادة ضبط",
+    "description": "Visible text of the button that resets the speed to 1×."
+  },
+  "resetLabel": {
+    "message": "إعادة الضبط إلى 1×",
+    "description": "Accessible label / tooltip of the reset button."
+  },
+  "decrease": {
+    "message": "أبطأ بمقدار 0.25×",
+    "description": "Accessible label of the minus button."
+  },
+  "increase": {
+    "message": "أسرع بمقدار 0.25×",
+    "description": "Accessible label of the plus button."
+  },
+  "speedInput": {
+    "message": "سرعة التشغيل (×)",
+    "description": "Accessible label of the numeric speed input."
+  },
+  "speedSlider": {
+    "message": "شريط تمرير سرعة التشغيل",
+    "description": "Accessible label of the speed slider."
+  },
+  "presets": {
+    "message": "سرعات جاهزة",
+    "description": "Accessible label of the group of preset speed buttons."
+  },
+  "presetLabel": {
+    "message": "الضبط على $SPEED$",
+    "description": "Accessible label of a preset button.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2×" }
+    }
+  },
+  "savedSpeedWhenOn": {
+    "message": "السرعة عند التفعيل",
+    "description": "Shown while disabled: the saved speed that will be used when the extension is turned on again."
+  },
+  "showOverlay": {
+    "message": "إظهار على الفيديو",
+    "description": "Setting: show the small control panel on top of videos."
+  },
+  "rememberSpeed": {
+    "message": "تذكّر السرعة",
+    "description": "Setting: automatically apply the saved speed to newly found videos."
+  },
+  "language": {
+    "message": "اللغة",
+    "description": "Label of the language selector."
+  },
+  "languageAuto": {
+    "message": "تلقائي (المتصفح)",
+    "description": "Language option that follows the browser language. Keep short."
+  },
+  "authorLink": {
+    "message": "تطبيقات أخرى للمطوّر",
+    "description": "Link to the author's website."
+  },
+  "opensNewTab": {
+    "message": "(يُفتح في علامة تبويب جديدة)",
+    "description": "Screen-reader hint appended to the author link."
+  },
+  "errLoadSettings": {
+    "message": "تعذّر تحميل الإعدادات. يُرجى إعادة فتح هذه النافذة.",
+    "description": "Error when the settings cannot be read when the popup opens."
+  },
+  "errSaveSettings": {
+    "message": "تعذّر حفظ الإعدادات.",
+    "description": "Error when saving settings or language failed."
+  },
+  "errReload": {
+    "message": "تعذّرت إعادة تحميل الصفحة.",
+    "description": "Error when reloading the tab failed."
+  },
+  "errInput": {
+    "message": "أدخل رقمًا من 0.25 إلى 16.",
+    "description": "Error for empty, non-numeric or out-of-range input."
+  },
+  "errNoTab": {
+    "message": "تعذّر العثور على علامة التبويب المراد التحكم فيها. يُرجى إعادة فتح هذه النافذة.",
+    "description": "Error when there is no active tab."
+  },
+  "msgReload": {
+    "message": "يُرجى إعادة تحميل الصفحة.",
+    "description": "Guidance when the page does not respond (e.g. it was opened before the extension was installed)."
+  },
+  "reloadTab": {
+    "message": "إعادة تحميل علامة التبويب هذه",
+    "description": "Accessible label / tooltip of the icon-only reload button."
+  },
+  "errCannotConfirm": {
+    "message": "تعذّر التحقق من سرعة التشغيل.",
+    "description": "Error when, after a communication failure, the requested speed could not be observed."
+  },
+  "msgNoVideo": {
+    "message": "لم يتم العثور على فيديو.",
+    "description": "Guidance when the page responded but contains no video."
+  },
+  "errCannotChange": {
+    "message": "تعذّر تغيير سرعة التشغيل.",
+    "description": "Error when the page or player rejected the speed change."
+  },
+  "overlayRegion": {
+    "message": "أداة التحكم في سرعة التشغيل",
+    "description": "Accessible name of the panel shown on top of a video."
+  },
+  "overlayCurrent": {
+    "message": "السرعة الحالية $SPEED$. اضغط لإعادة الضبط إلى 1×",
+    "description": "Accessible label / tooltip of the current-speed button on the video panel.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2.55×" }
+    }
+  },
+  "showDetails": {
+    "message": "إظهار التفاصيل",
+    "description": "Button on the video panel that opens the slider and presets."
+  },
+  "hideDetails": {
+    "message": "إخفاء التفاصيل",
+    "description": "Same button when the details are open."
+  },
+  "fold": {
+    "message": "طيّ أداة التحكم",
+    "description": "Button that shrinks the video panel to a small icon."
+  },
+  "openController": {
+    "message": "فتح أداة التحكم",
+    "description": "Accessible label of the small icon that restores the collapsed video panel."
+  }
+}

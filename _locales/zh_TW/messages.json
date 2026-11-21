@@ -1,0 +1,160 @@
+{
+  "extName": {
+    "message": "Tempo – 影片播放速度",
+    "description": "Product name. Shown in the store, the extensions page and the popup header. Max 75 characters."
+  },
+  "extDescription": {
+    "message": "將網頁影片的播放速度調整為 0.25× 至 16×，可透過工具列或影片上的小面板操作。",
+    "description": "Short store/manifest description. Max 132 characters."
+  },
+  "actionTitle": {
+    "message": "Tempo – 影片播放速度",
+    "description": "Tooltip of the toolbar button before any tab state is known."
+  },
+  "statusOn": {
+    "message": "ON",
+    "description": "Extension state: enabled. Very short (header, badge tooltip)."
+  },
+  "statusOff": {
+    "message": "OFF",
+    "description": "Extension state: disabled. Very short. Also shown large in the middle of the popup when disabled."
+  },
+  "enableLabel": {
+    "message": "啟用擴充功能",
+    "description": "Accessible label of the master on/off switch."
+  },
+  "playbackSpeed": {
+    "message": "播放速度",
+    "description": "Heading of the speed card."
+  },
+  "reset": {
+    "message": "重設",
+    "description": "Visible text of the button that resets the speed to 1×."
+  },
+  "resetLabel": {
+    "message": "重設為 1×",
+    "description": "Accessible label / tooltip of the reset button."
+  },
+  "decrease": {
+    "message": "減慢 0.25×",
+    "description": "Accessible label of the minus button."
+  },
+  "increase": {
+    "message": "加快 0.25×",
+    "description": "Accessible label of the plus button."
+  },
+  "speedInput": {
+    "message": "播放速度（×）",
+    "description": "Accessible label of the numeric speed input."
+  },
+  "speedSlider": {
+    "message": "播放速度滑桿",
+    "description": "Accessible label of the speed slider."
+  },
+  "presets": {
+    "message": "常用速度",
+    "description": "Accessible label of the group of preset speed buttons."
+  },
+  "presetLabel": {
+    "message": "設為 $SPEED$",
+    "description": "Accessible label of a preset button.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2×" }
+    }
+  },
+  "savedSpeedWhenOn": {
+    "message": "開啟時的速度",
+    "description": "Shown while disabled: the saved speed that will be used when the extension is turned on again."
+  },
+  "showOverlay": {
+    "message": "在影片上顯示",
+    "description": "Setting: show the small control panel on top of videos."
+  },
+  "rememberSpeed": {
+    "message": "記住速度",
+    "description": "Setting: automatically apply the saved speed to newly found videos."
+  },
+  "language": {
+    "message": "語言",
+    "description": "Label of the language selector."
+  },
+  "languageAuto": {
+    "message": "自動（瀏覽器）",
+    "description": "Language option that follows the browser language. Keep short."
+  },
+  "authorLink": {
+    "message": "作者的其他應用程式",
+    "description": "Link to the author's website."
+  },
+  "opensNewTab": {
+    "message": "（在新分頁中開啟）",
+    "description": "Screen-reader hint appended to the author link."
+  },
+  "errLoadSettings": {
+    "message": "無法載入設定，請重新開啟此視窗。",
+    "description": "Error when the settings cannot be read when the popup opens."
+  },
+  "errSaveSettings": {
+    "message": "無法儲存設定。",
+    "description": "Error when saving settings or language failed."
+  },
+  "errReload": {
+    "message": "無法重新載入網頁。",
+    "description": "Error when reloading the tab failed."
+  },
+  "errInput": {
+    "message": "請輸入 0.25 到 16 之間的數字。",
+    "description": "Error for empty, non-numeric or out-of-range input."
+  },
+  "errNoTab": {
+    "message": "找不到要控制的分頁，請重新開啟此視窗。",
+    "description": "Error when there is no active tab."
+  },
+  "msgReload": {
+    "message": "請重新載入網頁。",
+    "description": "Guidance when the page does not respond (e.g. it was opened before the extension was installed)."
+  },
+  "reloadTab": {
+    "message": "重新載入此分頁",
+    "description": "Accessible label / tooltip of the icon-only reload button."
+  },
+  "errCannotConfirm": {
+    "message": "無法確認播放速度。",
+    "description": "Error when, after a communication failure, the requested speed could not be observed."
+  },
+  "msgNoVideo": {
+    "message": "找不到影片。",
+    "description": "Guidance when the page responded but contains no video."
+  },
+  "errCannotChange": {
+    "message": "無法變更播放速度。",
+    "description": "Error when the page or player rejected the speed change."
+  },
+  "overlayRegion": {
+    "message": "播放速度控制器",
+    "description": "Accessible name of the panel shown on top of a video."
+  },
+  "overlayCurrent": {
+    "message": "目前為 $SPEED$。按下即可重設為 1×",
+    "description": "Accessible label / tooltip of the current-speed button on the video panel.",
+    "placeholders": {
+      "speed": { "content": "$1", "example": "2.55×" }
+    }
+  },
+  "showDetails": {
+    "message": "顯示詳細資訊",
+    "description": "Button on the video panel that opens the slider and presets."
+  },
+  "hideDetails": {
+    "message": "隱藏詳細資訊",
+    "description": "Same button when the details are open."
+  },
+  "fold": {
+    "message": "收合控制器",
+    "description": "Button that shrinks the video panel to a small icon."
+  },
+  "openController": {
+    "message": "展開控制器",
+    "description": "Accessible label of the small icon that restores the collapsed video panel."
+  }
+}
